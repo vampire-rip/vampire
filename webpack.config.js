@@ -23,7 +23,7 @@ module.exports = {
   ],
   resolve: {
     alias: {
-      vue: 'vue/dist/vue.js',
+      vue: 'vue/dist/vue.min.js',
       '@s': path.resolve(__dirname, 'src'),
       '@c': path.resolve(__dirname, 'src/components'),
       '@r': path.resolve(__dirname, 'src/resources'),
