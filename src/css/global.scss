@@ -1,0 +1,20 @@
+@charset "utf-8";
+
+html {
+  overflow: hidden!important;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.is-fullwidth {
+  width: 100%;
+}
+
+.tile.is-child > *:not(:first-child) {
+  padding: 0.7rem 1.5rem;
+}
