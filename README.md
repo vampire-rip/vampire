@@ -1,4 +1,7 @@
-This is the template of Vampire Project
+### Vampire Frontend
+
+Where the vampire comes from.
+
 
 ### Frameworks
 
@@ -7,12 +10,3 @@ This is the template of Vampire Project
 + [Vuex](https://vuex.vuejs.org/)
 + [Vue Router](https://router.vuejs.org/)
 + [Bulma](https://bulma.io/)
-
-### Why not webpack-merge?
-
-It merges Function -> string... wasting my sometime to debug, I hate it.
-
-### Why vcss?
-
-vue-loader won't work with style-loader/url...
-
