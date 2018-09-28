@@ -49,6 +49,7 @@
         <div class="navbar-start">
           <nav-item to="/" icon="fa-home">主页</nav-item>
           <nav-item to="/about" icon="fa-question">关于</nav-item>
+          <nav-link to="/ctf" icon="fa-flag-checkered">CTF</nav-link>
         </div>
 
         <div class="navbar-end">

@@ -52,7 +52,16 @@
   }
 
   div.has-padding-top {
-    padding-top: 1.3rem;
+    padding-top: 0.7rem;
+  }
+
+  div.box a{
+    color: #FA7C91!important;
+    text-decoration-style: dotted;
+    text-decoration-line: underline;
+    &:hover {
+      color: #757763!important;
+    }
   }
 </style>
 
@@ -70,8 +79,15 @@
         <div class="subtitle">
           还在建设中喵
         </div>
+        <div class="box">
+          <div><strong><a href="//assorted.pw">五目小哥哥</a>太可爱了</strong></div>
+          <div style="padding-left: 8rem">——子狐</div>
+        </div>
         <div style="display: inline-block; text-align: left">
-          <div class="list has-text-justified">
+          <div>
+            如果你...
+          </div>
+          <div class="list has-text-justified has-padding-top">
             <p>想要一个 .vampire.rip 的子域名</p>
             <p>想要一个 @vampire.rip 的邮箱</p>
             <p>想成为 Vampire R.I.P 的伙伴</p>

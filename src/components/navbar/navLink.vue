@@ -2,7 +2,7 @@
   import {mapState, mapMutations} from 'vuex';
 
   export default {
-    name: 'nav-item',
+    name: 'nav-link',
     props: ['to', 'icon'],
     beforeMount() {
 
@@ -28,8 +28,8 @@
 </style>
 
 <template>
-  <router-link :class="$options.name" class="navbar-item" :to="to">
+  <a :class="$options.name" class="navbar-item" :href="to">
     <span class="icon"><i class="fas" :class="icon"></i></span>
     <span><slot></slot></span>
-  </router-link>
+  </a>
 </template>
