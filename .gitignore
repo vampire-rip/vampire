@@ -81,8 +81,7 @@ public/
 
 # magic files
 .editorconfig
-
-
+package-lock.json
 
 
 

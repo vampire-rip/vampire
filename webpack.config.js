@@ -3,6 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const BabelPluginProposalObjectRestSpread = require('@babel/plugin-proposal-object-rest-spread');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+
+const distPath = path.resolve(__dirname, './public');
 
 module.exports = {
   entry: {
@@ -10,6 +13,7 @@ module.exports = {
   },
   mode: 'production',
   plugins: [
+    new CleanWebpackPlugin([distPath]),
     new HtmlWebpackPlugin({
       title: '<Template>',
       template: './src/index.html',
@@ -39,7 +43,8 @@ module.exports = {
         test: /\.vcss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader'
+          'css-loader',
+          'sass-loader'
         ],
       },
       {
@@ -117,6 +122,13 @@ module.exports = {
           },
         },
       },
+      {
+        test: /favicon\.ico(\?.*)?$/,
+        loader: 'file-loader',
+        options: {
+          name: 'favicon.ico',
+        },
+      },
     ],
   },
   devServer: {
@@ -124,6 +136,6 @@ module.exports = {
   },
   output: {
     filename: 'scripts/[name].[hash:7].js',
-    path: path.resolve(__dirname, './public'),
+    path: distPath,
   },
 };

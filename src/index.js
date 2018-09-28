@@ -6,6 +6,7 @@ const ServiceWorker = require('file-loader?name=sw.[hash:hex:3].[ext]!./servicew
 const GlobalCSS = require('./css/global.scss');
 const Bulma = require('./css/bulma.scss');
 const FontAwesome = require('@fortawesome/fontawesome-free/js/all.js');
+const Favicon = require('./favicon.ico');
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
