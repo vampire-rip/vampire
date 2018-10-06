@@ -28,16 +28,18 @@
 </script>
 
 <style scoped lang="vcss">
-
+.navbar {
+  flex: 0 0 auto;
+}
 </style>
 
 <template>
-  <nav class="navbar" :id="$options.name" :class="$options.name">
+  <nav :id="$options.name" :class="$options.name">
     <div class="container">
       <div class="navbar-brand">
-        <a class="navbar-item">
+        <router-link class="navbar-item" to="/" tag="div">
           <img src="@r/logo.png" alt="NKOJ">
-        </a>
+        </router-link>
         <div class="navbar-burger burger" data-target="navMenu">
           <span></span>
           <span></span>
@@ -48,6 +50,7 @@
       <div id="navMenu" class="navbar-menu">
         <div class="navbar-start">
           <nav-item to="/" icon="fa-home">主页</nav-item>
+          <nav-item to="/os" icon="fa-coins">操作系统</nav-item>
           <nav-item to="/about" icon="fa-question">关于</nav-item>
           <nav-link to="/ctf" icon="fa-flag-checkered">CTF</nav-link>
         </div>

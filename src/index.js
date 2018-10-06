@@ -41,6 +41,9 @@ const store = new Vuex.Store({
 const router = new VueRouter({
   routes : [
     {path: '/', component: routes.home},
+    {path: '/about', component: routes.about},
+    {path: '/os', component: routes.osDispatcher},
+    {path: '/os/:lab', component: routes.os},
   ]
 });
 
@@ -49,7 +52,8 @@ const app = new Vue({
   router,
   store,
   data: {
-    showNav: false,
+    showHero: false,
+    showNav: true,
   },
   beforeUpdate() {
 

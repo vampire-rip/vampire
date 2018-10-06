@@ -3,13 +3,13 @@
   export default {
     name: 'home',
     beforeMount() {
-
+      this.$root.showHero = true;
     },
     mounted() {
 
     },
     destroyed() {
-
+      this.$root.showHero = false;
     },
     computed: {
       ...mapState({

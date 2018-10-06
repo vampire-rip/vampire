@@ -18,7 +18,7 @@ $primary: $purple;
 $link: $pink;
 
 // Update some of Bulma's component variables
-$body-background-color: $beige-lighter;
+$body-background-color: #f6f6f6;
 $control-border-width: 2px;
 $input-border-color: transparent;
 $input-shadow: none;
@@ -45,4 +45,50 @@ $button-focus-border-color: $purple;
   }
 }
 
+.main-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 2rem 0 1rem;
+}
 
+@media screen and (max-width: 820px) {
+  .main-container {
+    width: 100%;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+
+@media screen and (min-width: 820px) {
+  .main-container {
+    max-width: 700px;
+    width: 700px;
+  }
+}
+@media screen and (min-width: 1088px) {
+  .main-container {
+    max-width: 760px;
+    width: 760px;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .main-container  {
+    max-width: 960px;
+    width: 960px;
+  }
+}
+
+::-webkit-scrollbar, ::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background-color: #CCC;
+}
+::-webkit-scrollbar, ::-webkit-scrollbar-track {
+  background-color: transparent;
+}
