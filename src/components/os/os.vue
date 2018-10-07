@@ -1,8 +1,10 @@
 <script>
 import {mapState, mapMutations} from 'vuex';
+import  Vue from 'vue'
 
 let target;
 let elems = [];
+let observer = undefined;
 const scrollListener = (e) => {
   if (e.path.some(d => d === target)) return;
   target.scrollTop += e.deltaY * 0.6;
@@ -66,29 +68,48 @@ export default {
     },
     titleArr() {
       const arr = Array.prototype.slice.call(this.titles);
-      let lastTag = '';
-      let result = [];
+      let lastTag = 'H ';
+      const stack = [];
+      const result = [];
       arr.map(title => {
         const a = title.innerHTML.split('/');
         const t = a.length === 1 ? a[0] : a[1];
-        const e = `<a href="#${title.id}">${t}</a>`;
-        if(title.tagName > lastTag) result.push(`<ul><li>${e}</li>`);
-        else if(title.tagName === lastTag) result.push(`<li>${e}</li>`);
-        else result.push(`</ul><li>${e}</li>`);
+        const e = `<a @click="$emit('hashTo','#${title.id}')">${t}</a>`;
+        if(title.tagName > lastTag) {
+          result.push(`<ul><li>${e}`);
+          stack.push(title.tagName);
+        } else if(title.tagName === lastTag) {
+          result.push(`</li><li>${e}`);
+        } else {
+          while (stack[stack.length - 1] > title.tagName) {
+            stack.pop();
+            result.push('</li></ul>');
+          }
+          result.push(`</li><li>${e}`)
+        }
         lastTag = title.tagName;
       });
-      result.push('</ul>');
-      return result.join('');
+      while (stack.pop()) {
+        result.push('</li></ul>');
+      }
+      return Vue.compile(result.join(''));
     }
   },
   methods: {
     ...mapMutations({}),
+    hashTo(param) {
+      target.scrollTop = document.querySelector(param).offsetTop - 50;
+    }
   },
-  updated() {
-    if(this.$route.path === this.lastRoutePath) return;
-    this.lastRoutePath = this.$route.path;
-    elems.forEach(e => e.removeEventListener('click', clickCopyListener));
-    Object.assign(this.$data, initiate());
+  updated(e) {
+    if(this.$route.path === this.lastRoutePath || observer) return;
+    observer = new MutationObserver(mutations => {
+      elems.forEach(e => e.removeEventListener('click', clickCopyListener));
+      Object.assign(this.$data, initiate());
+    });
+    observer.observe(document.querySelector('.markdown-content'), {
+      childList: true
+    });
   }
 };
 
@@ -97,8 +118,17 @@ export default {
 @import "../../css/markdown-content";
 
 ul {
-  padding: 0 20px;
-  list-style: unset;
+  padding: 0 10px 0 15px;
+  list-style: disc outside none;
+  list-style-type: inherit;
+  line-height: 1.65;
+}
+ul ul, ol ul {
+  list-style-type: circle;
+}
+
+ol ol ul, ol ul ul, ul ol ul, ul ul ul {
+  list-style-type: square;
 }
 
 .os {
@@ -116,13 +146,18 @@ ul {
 }
 .left-bar {
   flex: 0 1 auto;
-  max-width: 400px;
+  padding-top: 40px;
+  max-width: 300px;
   white-space: nowrap;
+  font-size: 0.9rem;
 }
 </style>
 
 <template>
 <div :id="$options.name" :class="$options.name">
+  <div class="left-bar is-hidden-mobile">
+    <component :is="titleArr" v-on:hashTo="hashTo"></component>
+  </div>
   <div class="markdown-content">
     <component :is="which"></component>
   </div>

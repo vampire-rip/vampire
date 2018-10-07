@@ -13,6 +13,8 @@
     "@babel/cli": "^7.1.0",
     "@babel/core": "^7.1.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@fortawesome/fontawesome-free": "^5.3.1",
     "babel-loader": "^8.0.4",
@@ -35,5 +37,8 @@
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1",
     "webpack-dev-server": "^3.1.9"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.1.2"
   }
 }

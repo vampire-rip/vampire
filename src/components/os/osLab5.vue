@@ -16,9 +16,9 @@ export default {
 <div :id="$options.name" :class="$options.name" class="content">
   <h1 id="lab-5-file-system-spawn-and-shell--文件系统，spawn-和-shell">Lab 5: File system, Spawn and Shell / 文件系统，Spawn 和 Shell</h1>
   <p>（译注：本次实验涉及磁盘操作，因此，如果使用 Windows 下的 Git 检出或提交，可能会导致 \n 被替换为 \r\n，进而导致无法通过打分脚本，请务必注意。）</p>
-  <h3 id="引言">引言</h3>
+  <h2 id="引言">引言</h2>
   <p>在本次实验中，你将会实现 <code>spawn</code> （就像是 environment 和 process 都指进程一样，这里的 spawn 和 fork 通常都可翻译为"派生"，但本次实验需要区分 fork 和 spawn，因此 spawn 这里保持不译），一个可以从磁盘中读取可执行文件并运行的库调用。接下来，你会完善你的内核和库调用，使操作系统足以在控制台执行一个 Shell。这些功能需要文件系统的支持，因此，本次实验将实现一个简单的读/写文件系统。</p>
-  <h4 id="开始">开始</h4>
+  <h3 id="开始">开始</h3>
   <p>使用 Git 来获得课程容器的最新源码，并基于我们的分支，<code>origin/lab5</code>，创建一个本地分支，<code>lab5</code> 。</p>
   <pre class=" language-bash"><code class="prism  language-bash"><span class="token function">cd</span> ~/6.828/lab
 <span class="token function">git</span> commit -am <span class="token string">'changes to lab4 after handin'</span>
@@ -75,7 +75,7 @@ export default {
     </tbody>
   </table><p>在合并(merge)了 lab 5 的新代码之后，你应该再运行一下 lab 4 的 <code>pingpong</code>，<code>primes</code> 和 <code>forktree</code>。你需要注释掉在 <code>kern/init.c</code> 的 <code>ENV_CREATE(fs_fs)</code> 这一行，因为 <code>fs/fs.c</code> 会尝试做一些 I/O 操作，JOS 现在还不支持。相似的，临时注释掉 <code>lib/exit.c</code> 对 <code>close_all()</code> 的调用，这个函数会调用一些你在接下来将会实现的例程，因此此时调用会导致恐慌。如果你的 lab 4 代码没什么问题，这些测试样例应该还能正常工作。如果不能，那么就先不要继续。当你检查完，不要忘记取消注释刚才注释掉的函数。</p>
   <p>如果 lab 4 的程序不能正常工作了，用 <code>git diff lab4</code> 来回顾下所有的改动，检查一下没有你在 lab 4 或者更之前的实验中完成的代码在 lab 5 中消失了。总之，确定 lab 4 还能正常工作再继续吧。</p>
-  <h4 id="实验需求">实验需求</h4>
+  <h3 id="实验需求">实验需求</h3>
   <p>像以前一样，你需要完成本次实验的全部常规练习和 <em>至少一个</em> 挑战练习。除此之外，你还需要为每一个问题写一个答案，并为你所完成的挑战练习写一个简短的一到两段的说明。如果你完成了不只一个挑战练习，你只需要在答案中介绍他们中的 1 个就可以了，当然，我们欢迎你做得更多。在提交作业前，记得把把答案放在 <code>lab5</code> 根目录的 <code>answers-lab5.txt</code> 中。</p>
   <h2 id="文件系统基础">文件系统基础</h2>
   <p>你将实现的文件系统将远远比 xv6 UNIX 下的真正的文件系统要简单得多，但是它已经足以提供一些基本的功能了：创建、读、写、删除按照层次目录结构组织的文件，</p>
