@@ -202,7 +202,6 @@ export default {
   <p>我们希望在 <code>fork</code> 和 <code>spawn</code> 之间共享文件描述符的状态。但是文件描述符状态是在用户内存空间中的。目前，当 <code>fork</code> 时，内存会被标记为 copy-on-write，所以这个状态不是被共享了，而是被复制了。这意味着，进程如果没有亲自打开这个文件的话，是不能读取这个文件的，而且管道机制在 fork 中也不会工作。当 <code>spawn</code> 时，内存完全不会被复制或者共享（或者说，通过 spawn 产生的进程开始的时候没有任何打开的文件描述符）。</p>
   <p>我们会调整 <code>fork</code>，让它知道内存中有些特定的区域是被这个库系统所使用的，所以总是被共享。不过我们也不会在某个地方写死一个会被库利用的内存区域列表，而是像 <code>PTE_COW</code> 一样，用页表中一个没有被使用的位来做标记。</p>
   <p>我们在 <code>inc/lib.h</code> 定义了一个新的 <code>PTE_SHARE</code> 位。这一位是 Intel 和 AMD 手册上说的，提供给软件使用的 3 个 PTE 位之一。我们会建立一个规矩，如果页表入口的这一位被设置了，那么无论是 <code>fork</code> 还是 <code>spawn</code>，这个页表入口就应该直接从父进程复制到子进程中。注意，这个和 copy-on-write 是不同的，因为我们需要确保对这一页的修改是 <em>共享</em> 的。</p>
-  </section>
   <section type="exercise">
     <p><strong>练习 8.</strong><br>
       修改 <code>lib/fork.c</code> 的 <code>duppage</code> 来遵照这个新的规矩。如果页表入口的 <code>PTE_SHARE</code> 这一位被设置了，应该直接拷贝这个映射。你应该用 <code>PTE_SYSCALL</code> 而不是 <code>0xffff</code> 来遮盖掉页表入口中相关的位， 因为 <code>0xffff</code> 会同时遮盖掉访问位和脏位。</p>
