@@ -56,8 +56,13 @@ $button-focus-border-color: $purple;
 @media screen and (max-width: 820px) {
   .main-container {
     width: 100%;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 15px;
+    padding-right: 5px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .navbar > .container {
+    height: 0;
   }
 }
 

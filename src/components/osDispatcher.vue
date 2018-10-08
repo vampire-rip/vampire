@@ -74,8 +74,8 @@
 
 <template>
   <div :id="$options.name" :class="$options.name">
-    <div class="tile is-ancestor is-12"  style="justify-content: center; width: 100%">
-      <div class="tile is-6 is-vertical is-parent">
+    <div class="tile is-ancestor is-12"  style="justify-content: center; width: 100%; overflow: hidden">
+      <div class="tile is-6 is-vertical is-parent" style="overflow: hidden">
         <router-link to="/os/lab3" tag="div" class="tile is-child">
           <p class="title">Lab 3</p>
           <p class="subtitle">User Environment <br/> 用户进程</p>
