@@ -3,9 +3,8 @@ import {mapState, mapMutations} from 'vuex';
 import Vue from 'vue';
 
 let target;
-let elems = [];
 let leftBar;
-let observer = undefined;
+let elems = [];
 const scrollListener = (e) => {
   if (e.path.some(d => d === target || d === leftBar)) return;
   target.scrollTop += e.deltaY * 0.6;
@@ -52,6 +51,7 @@ export default {
       challenges: [],
       lastRoutePath: '',
       leftBarActive: false,
+      observer: undefined,
     };
   },
   beforeMount() {
@@ -151,12 +151,12 @@ export default {
     },
   },
   updated(e) {
-    if (this.$route.path === this.lastRoutePath || observer) return;
-    observer = new MutationObserver(mutations => {
+    if (this.$route.path === this.lastRoutePath || this.observer) return;
+    this.observer = new MutationObserver(mutations => {
       elems.forEach(e => e.removeEventListener('click', clickCopyListener));
       Object.assign(this.$data, initiate());
     });
-    observer.observe(document.querySelector('.markdown-content'), {
+    this.observer.observe(document.querySelector('.markdown-content'), {
       childList: true,
     });
   },
