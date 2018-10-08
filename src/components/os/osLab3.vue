@@ -16,7 +16,7 @@ export default {
 <div :id="$options.name" :class="$options.name" class="content">
   <h1 id="lab-3-user-environment-用户进程">Lab 3: User Environment 用户进程</h1>
   <h2 id="introduction--介绍">Introduction / 介绍</h2>
-  <p>在本次实验中，你将实现使受保护的用户模式进程(英文原文是 environment，下同)得以运行的基础内核功能。在你的努力下，JOS 内核将建立起用于追踪用户进程的数据结构，创建一个用户进程，读入程序映像并运行。你也会使 JOS 内核有能力响应用户进程的任何系统调用，并处理用户进程所造成的异常。</p>
+  <p>在本次实验中，你将实现使 protected user-mode environment/保护模式下的用户进程 得以运行的基础内核功能。在你的努力下，JOS 内核将建立起用于追踪用户进程的数据结构，创建一个用户进程，读入程序映像并运行。你也会使 JOS 内核有能力响应用户进程的任何系统调用，并处理用户进程所造成的异常。</p>
   <p><strong>注意：</strong> 本次实验的 <em>environment</em> 和 <em>process</em> 是可以互换的，它们都指的是使一个程序得以运行的抽象概念。我们引入 <em>environment</em> 这个术语而不是使用更通用的术语 <em>process</em>，是为了强调，JOS的 <em>环境</em> 和 UNIX 的 <em>进程</em> 提供不同的接口，也有着不同的语义。（译注：为了统一，我们仍然使用通用术语“进程”，如需要区分，则单独注明）</p>
   <h3 id="getting-start--开始">Getting Start / 开始</h3>
   <p>使用 Git 来提交你在上交 Lab 2 之后的代码更改（如果有的话），<s>从课程容器中获得最新版本的代码</s>（我们不需要这么做），并基于我们的 lab3 分支 <strong>origin/lab3</strong> 创建一个新的本地分支 <strong>lab3</strong>：</p>
