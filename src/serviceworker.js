@@ -8,7 +8,13 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('activate', function(event) {
-  self.clients.claim();
+  self.clients.claim().then(() => {
+    fetch('/').then(response => {
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.put('/', response);
+      });
+    });
+  });
 });
 
 self.addEventListener('fetch', function(event) {
@@ -21,14 +27,29 @@ self.addEventListener('fetch', function(event) {
         const fetchRequest = event.request.clone();
         return fetch(fetchRequest).then(
             function(response) {
-              if(!response || response.status !== 200 || response.type !== 'basic' || !/\.(png|jpe?g|gif|svg|mp4)(\?.*)?$/.test(response.url)) {
+              if(!response || response.status !== 200 || response.type !== 'basic' || (!/\.(png|jpe?g|gif|svg|mp4|js|css)(\?.*)?$/.test(response.url))) {
                 return response;
               }
               const responseToCache = response.clone();
               caches.open(CACHE_NAME)
-              .then(function(cache) {
-                cache.put(event.request, responseToCache);
-              });
+              .then(cache =>
+                cache.keys().then(entries => {
+                  const regex = /^(.+\/.+?\.).{7}\.(.{1,4})/;
+                  const key = regex.exec(event.request.url);
+                  if(key)
+                    for (let i of entries) {
+                      const target = regex.exec(i.url);
+                      if(!target) continue;
+                      if((key[2] === target[2]) && (key[1] === target[1])) {
+                        cache.delete(i).then(() => console.log('deleted', i.url));
+                      }
+                    }
+                  return cache;
+                })
+              )
+              .then(cache =>
+                cache.put(event.request, responseToCache)
+              );
               return response;
             }
         ).catch(err => {
