@@ -8,7 +8,7 @@ const distPath = path.resolve(__dirname, './public');
 
 module.exports = {
   entry: {
-    app: './src/index.js',
+    entry: './src/entry.js',
   },
   mode: 'production',
   plugins: [
@@ -134,7 +134,8 @@ module.exports = {
     contentBase: '.',
   },
   output: {
-    filename: 'scripts/[name].[hash:7].js',
+    filename: 'entry.js',
+    chunkFilename:'scripts/[name].[chunkhash:7].js',
     path: distPath,
   },
 };
