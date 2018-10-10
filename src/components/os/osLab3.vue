@@ -249,7 +249,7 @@ export default {
     </li>
     <li>
       <p><strong>env_id:</strong></p>
-      <p>内核将可以唯一确定是哪个进程正在使用这个 <code>Env</code> 数组的标识符存储在这里（或者说，是哪个进程在占用 <code>envs</code> 数组中这个特定的位置）。当一个用户进程终止时，内核也许会将同一个 <code>Env</code> 结构分配给另一个进程，但即使新进程重复使用 <code>envs</code> 数组的同一个位置，它页将会拥有一个与旧进程不同的 <code>env_id</code>。</p>
+      <p>内核将可以唯一确定是哪个进程正在使用这个 <code>Env</code> 数组的标识符存储在这里（或者说，是哪个进程在占用 <code>envs</code> 数组中这个特定的位置）。当一个用户进程终止时，内核也许会将同一个 <code>Env</code> 结构分配给另一个进程，但即使新进程重复使用 <code>envs</code> 数组的同一个位置，它也将会拥有一个与旧进程不同的 <code>env_id</code>。</p>
     </li>
     <li>
       <p><strong>env_parent_id:</strong></p>

@@ -54,3 +54,19 @@ a.navbar-item.router-link-exact-active {
   color: yellowgreen!important;
   font-weight: 700;
 }
+
+.notice {
+  display: flex;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  width: 300px;
+  max-width: 100%;
+  background: #CCCCCC ;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  align-items: stretch;
+  pointer-events: none;
+  padding-bottom: 5vh;
+}

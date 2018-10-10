@@ -49,7 +49,8 @@ const app = new Vue({
   data: {
     showHero: false,
     showNav: true,
-    showMenu: false
+    showMenu: false,
+    messages: []
   },
   beforeUpdate() {
 

@@ -62,17 +62,18 @@ const handleCache = (path, cache) =>
     Promise.resolve().then(() =>
         fetch(path),
     ).then(response => {
+      if(!response.ok) return false;
       let newText;
       let clone = response.clone();
       return clone.text().then(text => {
         newText = text;
         return cache.match(path).
             then(response => response.text()).
-            catch(() => '');
+            catch(() => undefined);
       }).then(oldText => {
         if (oldText !== newText) {
           cache.put(path, response);
-          return true;
+          return oldText !== undefined;
         }
         return false;
       });

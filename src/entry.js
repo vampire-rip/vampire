@@ -4,8 +4,8 @@ const ServiceWorker = require(
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(ServiceWorker).
       then(console.log).
-      catch(console.error).
       then(() => navigator.serviceWorker.ready).
+      catch(console.error).
       then(() =>
           import('./index'),
       ).
