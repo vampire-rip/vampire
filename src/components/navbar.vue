@@ -14,6 +14,9 @@
     },
     computed: {
       ...mapState({}),
+      menuActive() {
+        return this.$root.showMenu
+      }
     },
     methods: {
       activeRegister() {
@@ -21,6 +24,13 @@
       },
       activeLogin() {
         this.$root.$refs.login.$data.active = true
+      },
+      toggleMenu(e) {
+        e.stopImmediatePropagation();
+        this.$root.showMenu = !this.$root.showMenu;
+      },
+      hideMenu() {
+        this.$root.showMenu = false;
       }
     },
   };
@@ -31,23 +41,29 @@
 .navbar {
   flex: 0 0 auto;
 }
+.navbar-burger.burger {
+  transition: all 0.5s ease;
+}
+.navbar-burger.burger.is-active {
+  transform: rotate(-90deg);
+}
 </style>
 
 <template>
-  <nav :id="$options.name" :class="$options.name">
+  <nav :id="$options.name" :class="$options.name" @click="hideMenu">
     <div class="container">
       <div class="navbar-brand">
         <router-link class="navbar-item" to="/" tag="div">
           <img src="@r/logo.png" alt="NKOJ">
         </router-link>
-        <div class="navbar-burger burger" data-target="navMenu">
+        <div class="navbar-burger burger" :class="{'is-active': menuActive}" @click="toggleMenu">
           <span></span>
           <span></span>
           <span></span>
         </div>
       </div>
-      <nav-divider></nav-divider>
-      <div id="navMenu" class="navbar-menu">
+      <nav-divider v-if="!menuActive"></nav-divider>
+      <div id="navMenu" class="navbar-menu" :class="{'is-active': menuActive}">
         <div class="navbar-start">
           <nav-item to="/" icon="fa-home">主页</nav-item>
           <nav-item to="/os" icon="fa-coins">操作系统</nav-item>
@@ -56,7 +72,7 @@
         </div>
 
         <div class="navbar-end">
-          <div class="navbar-item">
+          <div class="navbar-item" v-if="!menuActive">
             <div class="field">
               <p class="control has-icons-right">
                 <input class="input is-rounded" type="text" placeholder="搜索">
@@ -64,10 +80,10 @@
               </p>
             </div>
           </div>
-          <nav-reveal icon="fa-bullhorn">公告</nav-reveal>
-          <nav-divider></nav-divider>
-          <nav-reveal icon="fa-user-plus" @click.native="activeRegister">注册</nav-reveal>
-          <nav-reveal icon="fa-sign-in-alt" @click.native="activeLogin">登陆</nav-reveal>
+          <component :is="menuActive ? 'nav-item' : 'nav-reveal'" to="#1" icon="fa-bullhorn">公告</component>
+          <nav-divider v-if="!menuActive"></nav-divider>
+          <component :is="menuActive ? 'nav-item' : 'nav-reveal'" to="#2" icon="fa-user-plus" @click.native="activeRegister">注册</component>
+          <component :is="menuActive ? 'nav-item' : 'nav-reveal'" to="#3" icon="fa-sign-in-alt" @click.native="activeLogin">登陆</component>
         </div>
       </div>
     </div>

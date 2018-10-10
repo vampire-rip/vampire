@@ -38,6 +38,7 @@
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     transition: all 0.4s ease;
   }
   .reveal > .text {

@@ -4,25 +4,14 @@ const CACHE_NAME = 'cache_vampire';
 // const CACHE_URL = [];
 
 self.addEventListener('install', function(event) {
+  console.log('serviceWorker installed.');
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', function(event) {
-  let cache;
+  console.log('serviceWorker activated.');
   event.waitUntil(
-      self.clients.claim().then(() =>
-          caches.open(CACHE_NAME),
-      ).then(c => {
-        cache = c;
-        return fetch('/');
-      }).then(response => {
-        cache.put('/', response);
-        return fetch('/entry.js');
-      }).then(response =>
-          cache.put('/entry.js', response),
-      ).catch(console.error).then(() => {
-        console.log('inited');
-      })
+      self.clients.claim(),
   );
 });
 
@@ -67,4 +56,51 @@ self.addEventListener('fetch', function(event) {
         });
       }),
   );
+});
+
+const handleCache = (path, cache) =>
+    Promise.resolve().then(() =>
+        fetch(path),
+    ).then(response => {
+      let newText;
+      let clone = response.clone();
+      return clone.text().then(text => {
+        newText = text;
+        return cache.match(path).
+            then(response => response.text()).
+            catch(() => '');
+      }).then(oldText => {
+        if (oldText !== newText) {
+          cache.put(path, response);
+          return true;
+        }
+        return false;
+      });
+    }).catch(() =>
+        false
+    );
+
+self.addEventListener('message', message => {
+  let cache;
+  let hasUpdate = false;
+  const clientId = message.source.id;
+  if (message.data.ready) {
+    Promise.resolve().then(() =>
+        caches.open(CACHE_NAME),
+    ).then(_cache =>
+        cache = _cache,
+    ).then(() =>
+        handleCache('/', cache),
+    ).then(updated =>
+        hasUpdate = updated || hasUpdate,
+    ).then(() =>
+        handleCache('/entry.js', cache),
+    ).then(updated =>
+        hasUpdate = updated || hasUpdate,
+    ).then(() =>
+        clientId && hasUpdate ? clients.get(clientId) : undefined
+    ).then(client =>
+        client ? client.postMessage({updated: true}) : false
+    );
+  }
 });
