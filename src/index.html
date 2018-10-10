@@ -18,12 +18,9 @@
   <transition name="fade-move" mode="in-out">
   <hero v-if="showHero"></hero>
   </transition>
-  <!--<div class="notice">-->
-    <!--<message-block></message-block>-->
-    <!--<message-block></message-block>-->
-    <!--<message-block></message-block>-->
-    <!--<message-block></message-block>-->
-  <!--</div>-->
+  <div class="notice" v-if="messages.length">
+    <message-block v-for="(message, i) in messages" v-bind="message" :key="message.id"></message-block>
+  </div>
 </div>
 </body>
 </html>
