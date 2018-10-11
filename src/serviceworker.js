@@ -3,6 +3,13 @@
 const CACHE_NAME = 'cache_vampire';
 // const CACHE_URL = [];
 
+const postMessageToClient = (clientId, message) =>
+    Promise.resolve().then(() =>
+        clients.get(clientId)
+    ).then(client =>
+        client.postMessage(message)
+    );
+
 self.addEventListener('install', function(event) {
   console.log('serviceWorker installed.');
   event.waitUntil(self.skipWaiting());
@@ -16,6 +23,10 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
+  const {clientId} = event;
+  if (event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') {
+    return;
+  }
   event.respondWith(
       caches.match(event.request).then(function(response) {
         if (response) {
@@ -24,6 +35,10 @@ self.addEventListener('fetch', function(event) {
         const fetchRequest = event.request.clone();
         return fetch(fetchRequest).then(
             function(response) {
+              if(!response.ok && response.type !== 'opaque') {
+                console.log('error:', response);
+                postMessageToClient(clientId, {error: response.status});
+              }
               if (!response || response.status !== 200 || response.type !==
                   'basic' || (!/\.(png|jpe?g|gif|svg|mp4|js|css)(\?.*)?$/.test(
                       response.url))) {
@@ -51,8 +66,7 @@ self.addEventListener('fetch', function(event) {
               return response;
             },
         ).catch(err => {
-          console.warn(`[Warn] ↓ may be a chrome bug when devtools are open.`);
-          console.error(err);
+          postMessageToClient(clientId, {error: 'ERR_CONNECTION_FAILED'});
         });
       }),
   );
@@ -99,9 +113,7 @@ self.addEventListener('message', message => {
     ).then(updated =>
         hasUpdate = updated || hasUpdate,
     ).then(() =>
-        clientId && hasUpdate ? clients.get(clientId) : undefined
-    ).then(client =>
-        client ? client.postMessage({updated: true}) : false
+        clientId ? postMessageToClient(clientId, {updated: hasUpdate}) : false
     );
   }
 });

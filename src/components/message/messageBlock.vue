@@ -6,21 +6,27 @@ export default {
   data() {
     return {};
   },
-  props: ['id', 'source', 'content'],
+  props: ['id', 'source', 'content', 'error'],
   beforeMount() {
 
   },
   mounted() {
-
+    setTimeout(this.deleteSelf, 5500);
   },
   destroyed() {
 
   },
   computed: {
     ...mapState({}),
+    isError () {
+      return this.$props.error
+    }
   },
   methods: {
     ...mapMutations({}),
+    deleteSelf() {
+      return this.$root.deleteMessage(this.$props.id);
+    },
   },
 };
 
@@ -44,11 +50,18 @@ export default {
   justify-content: space-around;
   flex-direction: column;
 }
+.is-error {
+  border-color: #ff3860;
+  background-color: #fff5f7;
+  color: #cd0930;
+}
 </style>
 
 <template>
-<div :id="$options.name" :class="$options.name">
-  <div style="display: flex"><b>来自 {{source}} 的消息：</b><div class="delete" style="margin-left: auto"></div></div>
-  <div class="content">{{content}}</div>
+<div :id="$options.name" :class="[$options.name, {'is-error': isError}]">
+  <div style="display: flex"><b>来自 {{source}} 的消息：</b>
+    <div class="delete" style="margin-left: auto" @click="deleteSelf"></div>
+  </div>
+  <div class="content"> {{content}} </div>
 </div>
 </template>

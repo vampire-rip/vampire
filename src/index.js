@@ -47,6 +47,7 @@ const app = new Vue({
   router,
   store,
   data: {
+    messageID: 0,
     showHero: false,
     showNav: true,
     showMenu: false,
@@ -59,4 +60,26 @@ const app = new Vue({
   mounted() {
 
   },
+  methods: {
+    pushMessage({source, content, error}) {
+      this.messages.push({
+        id: this.messageID++,
+        source,
+        content,
+        error
+      });
+    },
+    deleteMessage(id) {
+      for (let i = 0; i < this.messages.length; i++)
+        if (this.messages[i].id === id)
+          return this.messages.splice(i, 1);
+    }
+  }
+});
+
+window.addEventListener('message', e => {
+  const {data} = e;
+  if (data.type === 'notice') {
+    app.pushMessage(data);
+  }
 });

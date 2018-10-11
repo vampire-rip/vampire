@@ -15,7 +15,7 @@ html, body {
   flex-direction: column;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active{
   transition: opacity .5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
@@ -36,6 +36,19 @@ html, body {
 
 .fade-move-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
 }
 
 .is-fullwidth {
