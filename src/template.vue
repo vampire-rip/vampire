@@ -30,7 +30,7 @@
 
 </script>
 <!-- vue-loader's scoped css won't work with style-loader -->
-<style scoped lang="vcss">
+<style scoped lang="scss">
 
 </style>
 

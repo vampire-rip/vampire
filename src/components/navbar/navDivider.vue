@@ -25,7 +25,7 @@
 
 </script>
 
-<style scoped lang="vcss">
+<style scoped lang="scss">
   .nav-divider {
     width: 0;
     margin: 10px 10px;

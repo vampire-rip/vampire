@@ -1,7 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const distPath = path.resolve(__dirname, './public');
@@ -18,10 +17,6 @@ module.exports = {
       filename: 'index.html',
     }),
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].ext.[hash:7].css',
-      chunkFilename: 'css/[id].[hash:7].css',
-    }),
     new CleanWebpackPlugin([distPath])
   ],
   resolve: {
@@ -39,35 +34,19 @@ module.exports = {
         loader: 'vue-loader',
       },
       {
-        test: /\.vcss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'sass-loader'
-        ],
-      },
-      {
         test: /\.css$/,
         use: [
-          'style-loader/url',
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'css/[name].[hash:7].css',
-            },
-          },
+          'style-loader',
+          { loader: 'css-loader', options: { importLoaders: 2 } },
+          'postcss-loader',
         ],
       },
       {
         test: /\.scss$/,
         use: [
-          'style-loader/url',
-          {
-            loader: 'file-loader',
-            options: {
-              name: 'css/[name].[hash:7].css',
-            },
-          },
+          'style-loader',
+          { loader: 'css-loader', options: { importLoaders: 2 } },
+          'postcss-loader',
           'sass-loader',
         ],
       },

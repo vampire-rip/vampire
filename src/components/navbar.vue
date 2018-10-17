@@ -37,7 +37,7 @@
 
 </script>
 
-<style scoped lang="vcss">
+<style scoped lang="scss">
 .navbar {
   flex: 0 0 auto;
 }

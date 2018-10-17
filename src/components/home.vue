@@ -25,7 +25,7 @@
 
 </script>
 
-<style scoped lang="vcss">
+<style scoped lang="scss">
 
 </style>
 

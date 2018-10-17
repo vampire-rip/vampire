@@ -24,7 +24,7 @@
 
 </script>
 
-<style scoped lang="vcss">
+<style scoped lang="scss">
   .reveal {
     position: relative;
     transition: all 0.4s ease;

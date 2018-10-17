@@ -55,7 +55,7 @@ self.addEventListener('fetch', function(event) {
                         if (!target) continue;
                         if ((key[2] === target[2]) && (key[1] === target[1])) {
                           cache.delete(i).
-                              then(() => console.log('deleted', i.url));
+                              then(() => console.log('deleted previous cache', i.url));
                         }
                       }
                     return cache;
