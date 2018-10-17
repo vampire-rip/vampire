@@ -1,13 +1,14 @@
 // chrome --disable-web-security --allow-file-access-from-files --unsafely-treat-insecure-origin-as-secure=http://localhost --user-data-dir=%TEMP%
 
 const CACHE_NAME = 'cache_vampire';
-// const CACHE_URL = [];
+const known_clients = new Set();
+const selfDestroyTimer = {};
 
 const postMessageToClient = (clientId, message) =>
     Promise.resolve().then(() =>
-        clients.get(clientId)
+        clients.get(clientId),
     ).then(client =>
-        client.postMessage(message)
+        client.postMessage(message),
     );
 
 self.addEventListener('install', function(event) {
@@ -18,14 +19,24 @@ self.addEventListener('install', function(event) {
 self.addEventListener('activate', function(event) {
   console.log('serviceWorker activated.');
   event.waitUntil(
-      self.clients.claim(),
+      self.clients.claim()
   );
 });
 
 self.addEventListener('fetch', function(event) {
-  const {clientId} = event;
-  if (event.request.cache === 'only-if-cached' && event.request.mode !== 'same-origin') {
+  if (event.request.cache === 'only-if-cached' && event.request.mode !==
+      'same-origin') {
     return;
+  }
+  const {clientId} = event;
+  if(!known_clients.has(clientId) && clientId) {
+    known_clients.add(clientId);
+    selfDestroyTimer[clientId] = setTimeout(() => {
+      self.registration.unregister().then(
+          () => console.log(`found bad client ${clientId}, get rid of it`)
+      )
+    }, 2000);
+    console.log('found new clients:', clientId);
   }
   event.respondWith(
       caches.match(event.request).then(function(response) {
@@ -35,7 +46,7 @@ self.addEventListener('fetch', function(event) {
         const fetchRequest = event.request.clone();
         return fetch(fetchRequest).then(
             function(response) {
-              if(!response.ok && response.type !== 'opaque') {
+              if (!response.ok && response.type !== 'opaque') {
                 console.log('error:', response);
                 postMessageToClient(clientId, {error: response.status});
               }
@@ -55,7 +66,8 @@ self.addEventListener('fetch', function(event) {
                         if (!target) continue;
                         if ((key[2] === target[2]) && (key[1] === target[1])) {
                           cache.delete(i).
-                              then(() => console.log('deleted previous cache', i.url));
+                              then(() => console.log('deleted previous cache',
+                                  i.url));
                         }
                       }
                     return cache;
@@ -76,7 +88,7 @@ const handleCache = (path, cache) =>
     Promise.resolve().then(() =>
         fetch(path),
     ).then(response => {
-      if(!response.ok) return false;
+      if (!response.ok) return false;
       let newText;
       let clone = response.clone();
       return clone.text().then(text => {
@@ -92,28 +104,35 @@ const handleCache = (path, cache) =>
         return false;
       });
     }).catch(() =>
-        false
+        false,
     );
 
 self.addEventListener('message', message => {
-  let cache;
-  let hasUpdate = false;
   const clientId = message.source.id;
-  if (message.data.ready) {
-    Promise.resolve().then(() =>
-        caches.open(CACHE_NAME),
-    ).then(_cache =>
-        cache = _cache,
-    ).then(() =>
-        handleCache('/', cache),
-    ).then(updated =>
-        hasUpdate = updated || hasUpdate,
-    ).then(() =>
-        handleCache('/entry.js', cache),
-    ).then(updated =>
-        hasUpdate = updated || hasUpdate,
-    ).then(() =>
-        clientId ? postMessageToClient(clientId, {updated: hasUpdate}) : false
-    );
+  switch (message.data.type){
+    case 'ready':
+      clearTimeout(selfDestroyTimer[clientId]);
+      delete selfDestroyTimer[clientId];
+      let cache;
+      let hasUpdate = false;
+      Promise.resolve().then(() =>
+          caches.open(CACHE_NAME),
+      ).then(_cache =>
+          cache = _cache,
+      ).then(() =>
+          handleCache('/', cache),
+      ).then(updated =>
+          hasUpdate = updated || hasUpdate,
+      ).then(() =>
+          handleCache('/entry.js', cache),
+      ).then(updated =>
+          hasUpdate = updated || hasUpdate,
+      ).then(() =>
+          clientId ? postMessageToClient(clientId, {updated: hasUpdate}) : false,
+      );
+      break;
+    case 'ping':
+      known_clients.add(clientId);
+      break;
   }
 });

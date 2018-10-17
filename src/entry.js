@@ -3,8 +3,8 @@ const ServiceWorker = require(
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register(ServiceWorker).
-      then(console.log).
       then(() => navigator.serviceWorker.ready).
+      then(reg => reg.active.postMessage({type: 'ping'})).
       catch(console.error).
       then(() =>
           import('./index'),
@@ -19,7 +19,7 @@ if ('serviceWorker' in navigator) {
           }
         });
         document.querySelector('#loading').remove();
-        navigator.serviceWorker.controller.postMessage({ready: true});
+        navigator.serviceWorker.controller.postMessage({type: 'ready'});
       });
 } else {
   import('./index');
