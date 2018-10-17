@@ -12,7 +12,6 @@ module.exports = {
   },
   mode: 'production',
   plugins: [
-    new CleanWebpackPlugin([distPath]),
     new HtmlWebpackPlugin({
       title: '<Template>',
       template: './src/index.html',
@@ -23,6 +22,7 @@ module.exports = {
       filename: 'css/[name].ext.[hash:7].css',
       chunkFilename: 'css/[id].[hash:7].css',
     }),
+    new CleanWebpackPlugin([distPath])
   ],
   resolve: {
     alias: {

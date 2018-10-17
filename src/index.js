@@ -4,7 +4,7 @@ const Vuex = require('vuex').default;
 
 const GlobalCSS = require('./css/global.scss');
 const Bulma = require('./css/bulma.scss');
-const FontAwesome = require('@fortawesome/fontawesome-free/js/all.js');
+const FontAwesome = require('@fortawesome/fontawesome-free/js/all.min');
 const Favicon = require('./favicon.ico');
 
 Vue.use(VueRouter);
