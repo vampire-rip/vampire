@@ -58,6 +58,7 @@ export default {
 </style>
 
 <template>
+<!--TODO: hover box shadow-->
 <div :id="$options.name" :class="[$options.name, {'is-error': isError}]">
   <div style="display: flex"><b>来自 {{source}} 的消息：</b>
     <div class="delete" style="margin-left: auto" @click="deleteSelf"></div>

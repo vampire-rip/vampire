@@ -68,7 +68,7 @@
           <nav-item to="/" icon="fa-home">主页</nav-item>
           <nav-item to="/os" icon="fa-coins">操作系统</nav-item>
           <nav-item to="/about" icon="fa-question">关于</nav-item>
-          <nav-link to="/ctf" icon="fa-flag-checkered">CTF</nav-link>
+          <nav-link to="https://github.com/vampire-rip/vampire" icon="fab fa-github">GitHub</nav-link>
         </div>
 
         <div class="navbar-end">

@@ -9,7 +9,11 @@ if ('serviceWorker' in navigator) {
       then(() =>
           import('./index'),
       ).
-      catch(() => alert('脚本下载失败了T^T 刷新试试？')).
+      catch((error) => {
+        console.warn('↓ While loading script, expecting [Module], received [Error]');
+        console.error(error);
+        alert('脚本下载失败了T^T 刷新试试？')
+      }).
       then(() => {
         navigator.serviceWorker.addEventListener('message', event => {
           if(event.data.updated !== undefined) {
