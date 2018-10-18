@@ -16,8 +16,9 @@ if ('serviceWorker' in navigator) {
         document.querySelector('#loader-text').innerHTML =
             '<span>脚本下载失败了T^T 刷新试试？</span>' +
             '<pre>' + error.stack + '</pre>';
+        return null;
       }).
-      then(() => {
+      then((component) => {
         navigator.serviceWorker.addEventListener('message', event => {
           if (event.data.updated !== undefined) {
             let status = event.data.updated;
@@ -46,8 +47,10 @@ if ('serviceWorker' in navigator) {
             }, '*');
           }
         });
-        document.querySelector('#page-loader').remove();
-        document.body.classList.remove('has-loader');
+        if(component !== null) {
+          document.querySelector('#page-loader').remove();
+          document.body.classList.remove('has-loader');
+        }
         navigator.serviceWorker.controller.postMessage({type: 'ready'});
       })
         ;
