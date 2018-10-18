@@ -20,14 +20,19 @@ if ('serviceWorker' in navigator) {
       then(() => {
         navigator.serviceWorker.addEventListener('message', event => {
           if (event.data.updated !== undefined) {
+            let status = event.data.updated;
             window.postMessage({
               type: 'notice',
               payload: {
                 source: 'Service Worker',
-                content: event.data.updated
+                content: status
                     ? '准备好了页面的更新，刷新喵~'
-                    : '页面下载完成，没有新任务~',
-                type: event.data.updated ? 'refresh' : 'success',
+                    : (status === null
+                        ? '检查更新失败......'
+                        :'页面下载完成，没有新任务~'),
+                type: event.data.updated ? 'refresh' : (status === null
+                                                        ? 'warning'
+                                                        : 'success'),
               },
             }, '*');
           } else if (event.data.error !== undefined) {

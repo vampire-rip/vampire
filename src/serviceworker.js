@@ -2,13 +2,14 @@
 
 const CACHE_NAME = 'cache_vampire';
 const known_clients = new Set();
+let fetchClient = {};
 const selfDestroyTimer = {};
 
 const postMessageToClient = (clientId, message) =>
     Promise.resolve().then(() =>
         clients.get(clientId),
     ).then(client =>
-        client.postMessage(message),
+        client && client.postMessage(message),
     );
 
 self.addEventListener('install', function(event) {
@@ -33,10 +34,13 @@ self.addEventListener('fetch', function(event) {
     known_clients.add(clientId);
     selfDestroyTimer[clientId] = setTimeout(() => {
       self.registration.unregister().then(
-          () => console.log(`found bad client ${clientId}, get rid of it`)
+          () => console.warn(`[sw] found bad client ${clientId}, get rid of it`)
       )
     }, 2000);
     console.log('found new clients:', clientId);
+  } else if(fetchClient.client === clientId) {
+    clearTimeout(fetchClient.timer);
+    fetchClient = {};
   }
   event.respondWith(
       caches.match(event.request).then(function(response) {
@@ -47,7 +51,7 @@ self.addEventListener('fetch', function(event) {
         return fetch(fetchRequest).then(
             function(response) {
               if (!response.ok && response.type !== 'opaque') {
-                console.log('error:', response);
+                console.log('[sw] error:', response);
                 postMessageToClient(clientId, {error: response.status});
               }
               if (!response || response.status !== 200 || response.type !==
@@ -88,7 +92,7 @@ const handleCache = (path, cache) =>
     Promise.resolve().then(() =>
         fetch(path),
     ).then(response => {
-      if (!response.ok) return false;
+      if (!response.ok) return null;
       let newText;
       let clone = response.clone();
       return clone.text().then(text => {
@@ -104,7 +108,7 @@ const handleCache = (path, cache) =>
         return false;
       });
     }).catch(() =>
-        false,
+        null,
     );
 
 self.addEventListener('message', message => {
@@ -114,7 +118,7 @@ self.addEventListener('message', message => {
       clearTimeout(selfDestroyTimer[clientId]);
       delete selfDestroyTimer[clientId];
       let cache;
-      let hasUpdate = false;
+      let hasUpdate = null;
       Promise.resolve().then(() =>
           caches.open(CACHE_NAME),
       ).then(_cache =>
@@ -122,17 +126,22 @@ self.addEventListener('message', message => {
       ).then(() =>
           handleCache('/', cache),
       ).then(updated =>
-          hasUpdate = updated || hasUpdate,
+          hasUpdate = hasUpdate || updated,
       ).then(() =>
           handleCache('/entry.js', cache),
       ).then(updated =>
-          hasUpdate = updated || hasUpdate,
+          hasUpdate = hasUpdate || updated,
       ).then(() =>
           clientId ? postMessageToClient(clientId, {updated: hasUpdate}) : false,
       );
       break;
     case 'ping':
       known_clients.add(clientId);
+      fetchClient.client = clientId;
+      fetchClient.timer = setTimeout(() => {
+        self.registration.unregister();
+        console.warn(`[sw] found bad client ${clientId}, get rid of it`);
+      }, 2000);
       break;
   }
 });
