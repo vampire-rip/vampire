@@ -61,12 +61,12 @@ const app = new Vue({
 
   },
   methods: {
-    pushMessage({source, content, error}) {
+    pushMessage({source, content, type}) {
       this.messages.push({
         id: this.messageID++,
         source,
         content,
-        error
+        type
       });
     },
     deleteMessage(id) {
@@ -80,6 +80,6 @@ const app = new Vue({
 window.addEventListener('message', e => {
   const {data} = e;
   if (data.type === 'notice') {
-    app.pushMessage(data);
+    app.pushMessage(data.payload);
   }
 });

@@ -10,33 +10,53 @@ if ('serviceWorker' in navigator) {
           import('./index'),
       ).
       catch((error) => {
-        console.warn('↓ While loading script, expecting [Module], received [Error]');
+        console.warn(
+            '↓ While loading script, expecting [Module], received [Error]');
         console.error(error);
         document.querySelector('#loader-text').innerHTML =
             '<span>脚本下载失败了T^T 刷新试试？</span>' +
-            '<pre>'+ error.stack +'</pre>'
+            '<pre>' + error.stack + '</pre>';
       }).
       then(() => {
         navigator.serviceWorker.addEventListener('message', event => {
-          if(event.data.updated !== undefined) {
-            window.postMessage({type: 'notice', source:'Service Worker', content: event.data.updated ? '在后台准备好了页面的更新喵~' : '页面下载完成，没有新任务~'}, '*');
-          } else if(event.data.error !== undefined){
-            window.postMessage({type: 'notice', source:'Service Worker', content: '网络连接失败，错误：' + event.data.error, error: true}, '*');
+          if (event.data.updated !== undefined) {
+            window.postMessage({
+              type: 'notice',
+              payload: {
+                source: 'Service Worker',
+                content: event.data.updated
+                    ? '准备好了页面的更新，刷新喵~'
+                    : '页面下载完成，没有新任务~',
+                type: event.data.updated ? 'refresh' : 'success',
+              },
+            }, '*');
+          } else if (event.data.error !== undefined) {
+            window.postMessage({
+              type: 'notice',
+              payload: {
+                source: 'Service Worker',
+                content: '网络连接错误，' + event.data.error,
+                type: 'error'
+              },
+            }, '*');
           }
         });
         document.querySelector('#page-loader').remove();
         document.body.classList.remove('has-loader');
         navigator.serviceWorker.controller.postMessage({type: 'ready'});
-      });
-} else {
-  try {
-    import('./index');
-    document.querySelector('#page-loader').remove();
-    document.body.classList.remove('has-loader');
-  } catch (error) {
-    console.error(error);
-    document.querySelector('#loader-text').innerHTML =
-        '<span>不支持您的浏览器，请升级QwQ</span>' +
-        '<pre>'+ error.stack +'</pre>'
+      })
+        ;
+      }
+else
+  {
+    try {
+      import('./index');
+      document.querySelector('#page-loader').remove();
+      document.body.classList.remove('has-loader');
+    } catch (error) {
+      console.error(error);
+      document.querySelector('#loader-text').innerHTML =
+          '<span>不支持您的浏览器，请升级QwQ</span>' +
+          '<pre>' + error.stack + '</pre>';
+    }
   }
-}
