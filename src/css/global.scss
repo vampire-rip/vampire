@@ -9,6 +9,11 @@ html, body {
   height: 100%;
 }
 
+body {
+  display: unset;
+  background: unset;
+}
+
 #app {
   height: 100%;
   display: flex;
