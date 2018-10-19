@@ -7,6 +7,11 @@ if ('serviceWorker' in navigator) {
       then(reg => reg.active.postMessage({type: 'ping'})).
       catch(console.error).
       then(() =>
+        new Promise(resolve =>
+          setTimeout(resolve, 0)
+        )
+      ).
+      then(() =>
           import('./index'),
       ).
       catch((error) => {
@@ -14,7 +19,7 @@ if ('serviceWorker' in navigator) {
             '↓ While loading script, expecting [Module], received [Error]');
         console.error(error);
         document.querySelector('#loader-text').innerHTML =
-            '<span>脚本下载失败了T^T 刷新试试？</span>' +
+            '<span>脚本加载失败T^T 刷新试试？</span>' +
             '<pre>' + error.stack + '</pre>';
         return null;
       }).
@@ -54,8 +59,7 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.controller.postMessage({type: 'ready'});
       })
         ;
-      }
-else
+} else
   {
     try {
       import('./index');
