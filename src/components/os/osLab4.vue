@@ -2,11 +2,10 @@
 
 export default {
   name: 'os-lab4',
-  data() {
-    return {};
-  },
-};
-
+  data () {
+    return {}
+  }
+}
 </script>
 <style scoped lang="scss">
 

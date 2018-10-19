@@ -1,19 +1,19 @@
 <script>
-import {mapState, mapMutations} from 'vuex';
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'message-block',
-  data() {
-    return {};
+  data () {
+    return {}
   },
   props: ['id', 'source', 'content', 'type'],
-  beforeMount() {
+  beforeMount () {
 
   },
-  mounted() {
-    setTimeout(this.deleteSelf, 5500);
+  mounted () {
+    setTimeout(this.deleteSelf, 5500)
   },
-  destroyed() {
+  destroyed () {
 
   },
   computed: {
@@ -24,17 +24,15 @@ export default {
   },
   methods: {
     ...mapMutations({}),
-    deleteSelf() {
-      return this.$root.deleteMessage(this.$props.id);
+    deleteSelf () {
+      return this.$root.deleteMessage(this.$props.id)
     },
-    handleClick() {
-      if(this.type === 'refresh')
-        return history.go(0);
-      return this.deleteSelf();
+    handleClick () {
+      if (this.type === 'refresh') { return history.go(0) }
+      return this.deleteSelf()
     }
-  },
-};
-
+  }
+}
 </script>
 <!-- vue-loader's scoped css won't work with style-loader -->
 <style scoped lang="scss">

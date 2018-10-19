@@ -2,27 +2,26 @@
   import { mapState, mapMutations } from 'vuex'
   export default {
     name: 'home',
-    beforeMount() {
-      this.$root.showHero = true;
+    beforeMount () {
+      this.$root.showHero = true
     },
-    mounted() {
+    mounted () {
 
     },
-    destroyed() {
-      this.$root.showHero = false;
+    destroyed () {
+      this.$root.showHero = false
     },
     computed: {
       ...mapState({
-        count: state=>state.count
+        count: state => state.count
       })
     },
     methods: {
       ...mapMutations({
         increment: 'increment'
       })
-    },
-  };
-
+    }
+  }
 </script>
 
 <style scoped lang="scss">

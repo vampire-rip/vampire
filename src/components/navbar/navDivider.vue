@@ -2,13 +2,13 @@
   import { mapState, mapMutations } from 'vuex'
   export default {
     name: 'nav-divider',
-    beforeMount() {
+    beforeMount () {
 
     },
-    mounted() {
+    mounted () {
 
     },
-    destroyed() {
+    destroyed () {
 
     },
     computed: {
@@ -20,9 +20,8 @@
       ...mapMutations({
 
       })
-    },
-  };
-
+    }
+  }
 </script>
 
 <style scoped lang="scss">

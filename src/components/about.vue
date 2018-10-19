@@ -1,28 +1,27 @@
 <script>
-import {mapState, mapMutations} from 'vuex';
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'about',
-  data() {
-    return {};
+  data () {
+    return {}
   },
-  beforeMount() {
+  beforeMount () {
 
   },
-  mounted() {
+  mounted () {
 
   },
-  destroyed() {
+  destroyed () {
 
   },
   computed: {
-    ...mapState({}),
+    ...mapState({})
   },
   methods: {
-    ...mapMutations({}),
-  },
-};
-
+    ...mapMutations({})
+  }
+}
 </script>
 <!-- vue-loader's scoped css won't work with style-loader -->
 <style scoped lang="scss">
@@ -76,7 +75,7 @@ export default {
   <h2>友情链接：<small>← 这是 &lt;h2&gt; 你敢信</small></h2>
   <div class="box has-text-centered">
     <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
-      <img src="//assorted.pw/img/gomoku.png" alt="Image">
+      <img src="@r/gomoku.png" alt="Image">
     </figure>
     <div><strong><a href="//assorted.pw">五目小哥哥太可爱了</a></strong></div>
   </div>

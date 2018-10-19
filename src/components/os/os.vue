@@ -1,49 +1,50 @@
 <script>
-import {mapState, mapMutations} from 'vuex';
-import Vue from 'vue';
+import { mapState, mapMutations } from 'vuex'
+import Vue from 'vue'
 
-let target;
-let leftBar;
-let elems = [];
+let target
+let leftBar
+let elems = []
 const scrollListener = (e) => {
-  if (e.path.some(d => d === target || d === leftBar)) return;
-  target.scrollTop += e.deltaY * 0.6;
-  target.scrollLeft += e.deltaX * 0.6;
-};
+  if (e.path.some(d => d === target || d === leftBar)) return
+  target.scrollTop += e.deltaY * 0.6
+  target.scrollLeft += e.deltaX * 0.6
+}
 const clickCopyListener = (e) => {
-  e.stopImmediatePropagation();
-  e = e.srcElement;
+  e.stopImmediatePropagation()
+  e = e.srcElement
   let text = e
-      , range, selection
-  ;
+
+  let range; let selection
+
   if (document.body.createTextRange) {
-    range = document.body.createTextRange();
-    range.moveToElementText(text);
-    range.select();
+    range = document.body.createTextRange()
+    range.moveToElementText(text)
+    range.select()
   } else if (window.getSelection) {
-    selection = window.getSelection();
-    range = document.createRange();
-    range.selectNodeContents(text);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    selection = window.getSelection()
+    range = document.createRange()
+    range.selectNodeContents(text)
+    selection.removeAllRanges()
+    selection.addRange(range)
   }
-  document.execCommand('copy');
-};
+  document.execCommand('copy')
+}
 const initiate = () => {
-  const titles = document.querySelectorAll('h2,h3,h4');
-  const exercises = document.querySelectorAll('section[type="exercise"]');
-  const questions = document.querySelectorAll('section[type="question"]');
-  const challenges = document.querySelectorAll('section[type="challenge"]');
-  leftBar = document.querySelector('.left-bar');
-  target = document.querySelector('.markdown-content');
-  document.addEventListener('wheel', scrollListener, {passive: true});
-  elems = document.querySelectorAll(':not(pre) > code');
-  elems.forEach(e => e.addEventListener('click', clickCopyListener));
-  return {titles, exercises, questions, challenges};
-};
+  const titles = document.querySelectorAll('h2,h3,h4')
+  const exercises = document.querySelectorAll('section[type="exercise"]')
+  const questions = document.querySelectorAll('section[type="question"]')
+  const challenges = document.querySelectorAll('section[type="challenge"]')
+  leftBar = document.querySelector('.left-bar')
+  target = document.querySelector('.markdown-content')
+  document.addEventListener('wheel', scrollListener, { passive: true })
+  elems = document.querySelectorAll(':not(pre) > code')
+  elems.forEach(e => e.addEventListener('click', clickCopyListener))
+  return { titles, exercises, questions, challenges }
+}
 export default {
   name: 'os',
-  data() {
+  data () {
     return {
       titles: [],
       exercises: [],
@@ -51,117 +52,113 @@ export default {
       challenges: [],
       lastRoutePath: '',
       leftBarActive: false,
-      observer: undefined,
-    };
+      observer: undefined
+    }
   },
-  beforeMount() {
+  beforeMount () {
 
   },
-  mounted() {
-    this.$root.showNav = false;
-    this.$nextTick(() => Object.assign(this.$data, initiate()));
+  mounted () {
+    this.$root.showNav = false
+    this.$nextTick(() => Object.assign(this.$data, initiate()))
   },
-  destroyed() {
-    document.removeEventListener('wheel', scrollListener);
-    this.$root.showNav = true;
+  destroyed () {
+    document.removeEventListener('wheel', scrollListener)
+    this.$root.showNav = true
   },
   computed: {
     ...mapState({}),
-    which() {
-      return 'os-' + this.$route.params.lab;
+    which () {
+      return 'os-' + this.$route.params.lab
     },
-    titleDir() {
-      const arr = Array.prototype.slice.call(this.titles);
-      let lastTag = 'H ';
-      const stack = [];
-      const result = [];
+    titleDir () {
+      const arr = Array.prototype.slice.call(this.titles)
+      let lastTag = 'H '
+      const stack = []
+      const result = []
       arr.map(title => {
-        const a = title.innerHTML.split('/');
-        const t = a.length === 1 ? a[0] : a[1];
-        const e = `<a @click="$emit('hashTo','#${title.id}')">${t}</a>`;
+        const a = title.innerHTML.split('/')
+        const t = a.length === 1 ? a[0] : a[1]
+        const e = `<a @click="$emit('hashTo','#${title.id}')">${t}</a>`
         if (title.tagName > lastTag) {
-          result.push(`<ul><li>${e}`);
-          stack.push(title.tagName);
+          result.push(`<ul><li>${e}`)
+          stack.push(title.tagName)
         } else if (title.tagName === lastTag) {
-          result.push(`</li><li>${e}`);
+          result.push(`</li><li>${e}`)
         } else {
           while (stack[stack.length - 1] > title.tagName) {
-            stack.pop();
-            result.push('</li></ul>');
+            stack.pop()
+            result.push('</li></ul>')
           }
-          result.push(`</li><li>${e}`);
+          result.push(`</li><li>${e}`)
         }
-        lastTag = title.tagName;
-      });
+        lastTag = title.tagName
+      })
       while (stack.pop()) {
-        result.push('</li></ul>');
+        result.push('</li></ul>')
       }
-      return Vue.compile(result.join(''));
+      return Vue.compile(result.join(''))
     },
-    exerciseDir() {
-      const arr = Array.prototype.slice.call(this.exercises);
-      const result = [];
-      result.push('<ul>');
+    exerciseDir () {
+      const arr = Array.prototype.slice.call(this.exercises)
+      const result = []
+      result.push('<ul>')
       arr.map((exercise, i) => {
-        i = i + 1;
-        exercise.setAttribute('id', `exercise${i}`);
-        result.push(`<li><a @click="$emit('hashTo', '#exercise${i}')">练习 ${i}</a></li>`);
-      });
-      result.push('</ul>');
-      return Vue.compile(result.join(''));
+        i = i + 1
+        exercise.setAttribute('id', `exercise${i}`)
+        result.push(`<li><a @click="$emit('hashTo', '#exercise${i}')">练习 ${i}</a></li>`)
+      })
+      result.push('</ul>')
+      return Vue.compile(result.join(''))
     },
-    questionDir() {
-      const arr = Array.prototype.slice.call(this.questions);
-      const result = [];
-      result.push('<ul>');
+    questionDir () {
+      const arr = Array.prototype.slice.call(this.questions)
+      const result = []
+      result.push('<ul>')
       arr.map((question, i) => {
-        i = i + 1;
-        question.setAttribute('id', `question${i}`);
-        result.push(`<li><a @click="$emit('hashTo', '#question${i}')">问题 ${i}</a></li>`);
-      });
-      result.push('</ul>');
-      return Vue.compile(result.join(''));
+        i = i + 1
+        question.setAttribute('id', `question${i}`)
+        result.push(`<li><a @click="$emit('hashTo', '#question${i}')">问题 ${i}</a></li>`)
+      })
+      result.push('</ul>')
+      return Vue.compile(result.join(''))
     },
-    challengeDir() {
-      const arr = Array.prototype.slice.call(this.challenges);
-      const result = [];
-      result.push('<ul>');
+    challengeDir () {
+      const arr = Array.prototype.slice.call(this.challenges)
+      const result = []
+      result.push('<ul>')
       arr.map((challenge, i) => {
-        i = i + 1;
-        challenge.setAttribute('id', `challenge${i}`);
-        result.push(`<li><a @click="$emit('hashTo', '#challenge${i}')">挑战 ${i}</a></li>`);
-      });
-      result.push('</ul>');
-      return Vue.compile(result.join(''));
-    },
+        i = i + 1
+        challenge.setAttribute('id', `challenge${i}`)
+        result.push(`<li><a @click="$emit('hashTo', '#challenge${i}')">挑战 ${i}</a></li>`)
+      })
+      result.push('</ul>')
+      return Vue.compile(result.join(''))
+    }
   },
   methods: {
     ...mapMutations({}),
-    hashTo(param) {
-      if (typeof param === 'string')
-        target.scrollTop = document.querySelector(param).offsetTop - 50;
-      else
-        target.scrollTop = param.offsetTop - 50;
+    hashTo (param) {
+      if (typeof param === 'string') { target.scrollTop = document.querySelector(param).offsetTop - 50 } else { target.scrollTop = param.offsetTop - 50 }
     },
-    toggleLeftBar() {
-      this.leftBarActive = !this.leftBarActive;
+    toggleLeftBar () {
+      this.leftBarActive = !this.leftBarActive
     },
-    hideLeftBar() {
-      this.leftBarActive = false;
-    },
+    hideLeftBar () {
+      this.leftBarActive = false
+    }
   },
-  updated(e) {
-    if (this.$route.path === this.lastRoutePath || this.observer) return;
+  updated (e) {
+    if (this.$route.path === this.lastRoutePath || this.observer) return
     this.observer = new MutationObserver(mutations => {
-      elems.forEach(e => e.removeEventListener('click', clickCopyListener));
-      Object.assign(this.$data, initiate());
-    });
+      elems.forEach(e => e.removeEventListener('click', clickCopyListener))
+      Object.assign(this.$data, initiate())
+    })
     this.observer.observe(document.querySelector('.markdown-content'), {
-      childList: true,
-    });
-  },
-};
-
+      childList: true
+    })
+  }
+}
 </script>
 <style lang="scss">
 @import "../../css/markdown-content";

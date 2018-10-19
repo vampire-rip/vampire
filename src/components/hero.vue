@@ -1,28 +1,27 @@
 <script>
-import {mapState, mapMutations} from 'vuex';
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'hero',
-  data() {
-    return {};
+  data () {
+    return {}
   },
-  beforeMount() {
+  beforeMount () {
 
   },
-  mounted() {
+  mounted () {
 
   },
-  destroyed() {
+  destroyed () {
 
   },
   computed: {
-    ...mapState({}),
+    ...mapState({})
   },
   methods: {
-    ...mapMutations({}),
-  },
-};
-
+    ...mapMutations({})
+  }
+}
 </script>
 <!-- vue-loader's scoped css won't work with style-loader -->
 <style lang="scss">

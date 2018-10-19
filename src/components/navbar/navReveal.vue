@@ -3,13 +3,13 @@
   export default {
     name: 'nav-reveal',
     props: ['icon'],
-    beforeMount() {
+    beforeMount () {
 
     },
-    mounted() {
+    mounted () {
 
     },
-    destroyed() {
+    destroyed () {
 
     },
     computed: {
@@ -19,9 +19,8 @@
     },
     methods: {
 
-    },
-  };
-
+    }
+  }
 </script>
 
 <style scoped lang="scss">

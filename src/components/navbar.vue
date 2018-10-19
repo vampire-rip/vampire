@@ -1,40 +1,39 @@
 <script>
-  import {mapState, mapMutations} from 'vuex';
+  import { mapState, mapMutations } from 'vuex'
 
-  export default {
+export default {
     name: 'navbar',
-    beforeMount() {
+    beforeMount () {
 
     },
-    mounted() {
+    mounted () {
 
     },
-    destroyed() {
+    destroyed () {
 
     },
     computed: {
       ...mapState({}),
-      menuActive() {
+      menuActive () {
         return this.$root.showMenu
       }
     },
     methods: {
-      activeRegister() {
+      activeRegister () {
         this.$root.$refs.register.$data.active = true
       },
-      activeLogin() {
+      activeLogin () {
         this.$root.$refs.login.$data.active = true
       },
-      toggleMenu(e) {
-        e.stopImmediatePropagation();
-        this.$root.showMenu = !this.$root.showMenu;
+      toggleMenu (e) {
+        e.stopImmediatePropagation()
+        this.$root.showMenu = !this.$root.showMenu
       },
-      hideMenu() {
-        this.$root.showMenu = false;
+      hideMenu () {
+        this.$root.showMenu = false
       }
-    },
-  };
-
+    }
+  }
 </script>
 
 <style scoped lang="scss">
@@ -54,7 +53,7 @@
     <div class="container">
       <div class="navbar-brand">
         <router-link class="navbar-item" to="/" tag="div">
-          <img src="@r/logo.png" alt="NKOJ">
+          <img src="@r/logo.png" alt="Vampire">
         </router-link>
         <div class="navbar-burger burger" :class="{'is-active': menuActive}" @click="toggleMenu">
           <span></span>

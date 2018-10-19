@@ -1,26 +1,25 @@
 <script>
-  import {mapState, mapMutations} from 'vuex';
+  import { mapState, mapMutations } from 'vuex'
 
-  export default {
+export default {
     name: 'nav-item',
     props: ['to', 'icon'],
-    beforeMount() {
+    beforeMount () {
 
     },
-    mounted() {
+    mounted () {
 
     },
-    destroyed() {
+    destroyed () {
 
     },
     computed: {
-      ...mapState({}),
+      ...mapState({})
     },
     methods: {
-      ...mapMutations({}),
-    },
-  };
-
+      ...mapMutations({})
+    }
+  }
 </script>
 
 <style scoped lang="scss">

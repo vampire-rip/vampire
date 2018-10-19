@@ -24,12 +24,12 @@ self.addEventListener('activate', function (event) {
     self.clients.claim().then(() =>
       self.clients.matchAll()
     ).then(clients => {
-        for (const client of clients) {
-          known_clients.add(client.id)
-          console.log('[sw] trusted initial clients', client.id)
-        }
-        return true
+      for (const client of clients) {
+        known_clients.add(client.id)
+        console.log('[sw] trusted initial clients', client.id)
       }
+      return true
+    }
     )
   )
 })
@@ -56,38 +56,40 @@ self.addEventListener('fetch', function (event) {
       }
       const fetchRequest = request.clone()
       return fetch(fetchRequest).then(response => {
-        if (!response || !response.ok && response.type !== 'opaque') {
-          console.log('[sw] error:', response)
-          postMessageToClient(clientId, { error: response.status })
+        if (!response || !response.ok || response.type === 'opaque') {
+          if (response.type !== 'opaque') {
+            console.log('[sw] error:', response)
+            postMessageToClient(clientId, { error: response.status })
+          }
+          return response
         }
-        if (!response ||
-                  !response.ok ||
-                  response.type !== 'basic' ||
-                  !cachePattern.test(response.url)) {
+        if (!cachePattern.test(response.url)) {
           return response
         }
         const responseToCache = response.clone()
         caches.open(CACHE_NAME).then(cache => {
-          cache.keys().then(entries => {
-            const regex = /^(.+\/.+?\.).{7}\.(.{1,4})/
-            const key = regex.exec(request.url)
-            if (key) {
-              for (let i of entries) {
-                const target = regex.exec(i.url)
-                if (!target) continue
-                if ((key[2] === target[2]) && (key[1] === target[1])) {
-                  cache.delete(i).then(() =>
-                    console.log('[sw] deleted previous cache', i.url)
-                  )
+          if (response.type !== 'cors') {
+            cache.keys().then(entries => {
+              const regex = /^(.+\/.+?\.).{7}\.(.{1,4})/
+              const key = regex.exec(request.url)
+              if (key) {
+                for (let i of entries) {
+                  const target = regex.exec(i.url)
+                  if (!target) continue
+                  if ((key[2] === target[2]) && (key[1] === target[1])) {
+                    cache.delete(i).then(() =>
+                      console.log('[sw] deleted previous cache', i.url)
+                    )
+                  }
                 }
               }
-            }
-          })
+            })
+          }
           cache.put(request, responseToCache)
         })
         return response
       }).catch(err => {
-        console.warn('[sw] fetch failed', err)
+        console.warn('[sw] failed to fetch', err)
         postMessageToClient(clientId, { error: 'ERR_CONNECTION_FAILED' })
         throw err
       })
