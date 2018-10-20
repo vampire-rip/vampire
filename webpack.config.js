@@ -12,7 +12,6 @@ module.exports = {
   mode: 'production',
   plugins: [
     new HtmlWebpackPlugin({
-      title: '<Template>',
       template: './src/index.html',
       filename: 'index.html'
     }),
