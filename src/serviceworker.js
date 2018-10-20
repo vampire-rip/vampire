@@ -1,7 +1,7 @@
 // chrome --disable-web-security --allow-file-access-from-files --unsafely-treat-insecure-origin-as-secure=http://localhost --user-data-dir=%TEMP%
 
 const CACHE_NAME = 'cache_vampire'
-const known_clients = new Set()
+const knownClients = new Set()
 const selfDestroyTimer = {}
 const cachePattern = /\.(png|jpe?g|gif|svg|mp4|js|css|woff2?)(\?.*)?$/
 
@@ -13,6 +13,59 @@ const postMessageToClient = (clientId, message) => {
   )
 }
 
+const handleCache = (path, cache) => {
+  const controller = new AbortController()
+  const signal = controller.signal
+  const cancelInterval = setInterval(() => {
+    console.log('[sw] timeout! cancel the fetch.')
+    controller.abort()
+  }, 5000)
+  return Promise.resolve().then(() =>
+    fetch(path, { signal })
+  ).then(response => {
+    if (!response.ok) return null
+    let newText
+    let clone = response.clone()
+    return clone.text().then(text => {
+      newText = text
+      return cache.match(path)
+        .then(response => response.text())
+        .catch(() => undefined)
+    }).then(oldText => {
+      if (oldText !== newText) {
+        cache.put(path, response)
+        return oldText !== undefined
+      }
+      return false
+    })
+  }).catch(() =>
+    null
+  ).then(value => {
+    clearInterval(cancelInterval)
+    return value
+  })
+}
+
+const cacheMainPage = () => {
+  let cache
+  let hasUpdate = null
+  return Promise.resolve().then(() =>
+    caches.open(CACHE_NAME)
+  ).then(_cache =>
+    cache = _cache
+  ).then(() =>
+    handleCache('/', cache)
+  ).then(updated =>
+    hasUpdate = hasUpdate || updated
+  ).then(() => {
+    if (hasUpdate === null) return null
+    return handleCache('/entry.js', cache)
+  }
+  ).then(updated =>
+    hasUpdate = hasUpdate || updated
+  )
+}
+
 self.addEventListener('install', function (event) {
   console.log('[sw] installed.')
   event.waitUntil(self.skipWaiting())
@@ -21,16 +74,7 @@ self.addEventListener('install', function (event) {
 self.addEventListener('activate', function (event) {
   console.log('[sw] activated.')
   event.waitUntil(
-    self.clients.claim().then(() =>
-      self.clients.matchAll()
-    ).then(clients => {
-      for (const client of clients) {
-        known_clients.add(client.id)
-        console.log('[sw] trusted initial clients', client.id)
-      }
-      return true
-    }
-    )
+    self.clients.claim()
   )
 })
 
@@ -40,14 +84,16 @@ self.addEventListener('fetch', function (event) {
     return console.warn('[sw] warn devtools are open')
   }
   const { clientId } = event
-  if (!known_clients.has(clientId) && clientId) {
-    known_clients.add(clientId)
+  if (!knownClients.has(clientId) && clientId) {
+    knownClients.add(clientId)
     console.log('[sw] found new client', clientId)
-    selfDestroyTimer[clientId] = setTimeout(() => {
-      self.registration.unregister().then(() =>
-        console.warn(`[sw] found bad client ${clientId}, get rid of it`)
-      )
-    }, 2000)
+    if (request.url.split('/').pop() === 'entry.js') {
+      selfDestroyTimer[clientId] = setTimeout(() => {
+        console.log(`[sw] client ${clientId} is bad, refetching.`)
+        selfDestroyTimer[clientId] = null
+        cacheMainPage()
+      }, 2000)
+    }
   }
   event.respondWith(
     caches.match(request).then(response => {
@@ -97,51 +143,15 @@ self.addEventListener('fetch', function (event) {
   )
 })
 
-const handleCache = (path, cache) =>
-  Promise.resolve().then(() =>
-    fetch(path)
-  ).then(response => {
-    if (!response.ok) return null
-    let newText
-    let clone = response.clone()
-    return clone.text().then(text => {
-      newText = text
-      return cache.match(path)
-        .then(response => response.text())
-        .catch(() => undefined)
-    }).then(oldText => {
-      if (oldText !== newText) {
-        cache.put(path, response)
-        return oldText !== undefined
-      }
-      return false
-    })
-  }).catch(() =>
-    null
-  )
-
 self.addEventListener('message', message => {
   const clientId = message.source.id
   switch (message.data.type) {
     case 'ready':
-      console.log(`[sw] nice, client ${clientId} is in good state`)
       clearTimeout(selfDestroyTimer[clientId])
+      const state = selfDestroyTimer[clientId]
       delete selfDestroyTimer[clientId]
-      let cache
-      let hasUpdate = null
-      Promise.resolve().then(() =>
-        caches.open(CACHE_NAME)
-      ).then(_cache =>
-        cache = _cache
-      ).then(() =>
-        handleCache('/', cache)
-      ).then(updated =>
-        hasUpdate = hasUpdate || updated
-      ).then(() =>
-        handleCache('/entry.js', cache)
-      ).then(updated =>
-        hasUpdate = hasUpdate || updated
-      ).then(() =>
+      console.log(`[sw] nice, client ${clientId} is in good state.`);
+      (state === null ? Promise.resolve(null) : cacheMainPage()).then(hasUpdate =>
         clientId
           ? postMessageToClient(clientId, { updated: hasUpdate })
           : false
