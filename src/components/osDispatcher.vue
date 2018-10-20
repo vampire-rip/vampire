@@ -1,32 +1,32 @@
 <script>
-  import { mapState, mapMutations } from 'vuex'
-  export default {
-    name: 'osDispatcher',
-    data () {
-      return {
+import { mapState, mapMutations } from 'vuex'
+export default {
+  name: 'osDispatcher',
+  data () {
+    return {
 
-      }
-    },
-    beforeMount () {
-
-    },
-    mounted () {
-
-    },
-    destroyed () {
-
-    },
-    computed: {
-      ...mapState({
-
-      })
-    },
-    methods: {
-      ...mapMutations({
-
-      })
     }
+  },
+  beforeMount () {
+
+  },
+  mounted () {
+
+  },
+  destroyed () {
+
+  },
+  computed: {
+    ...mapState({
+
+    })
+  },
+  methods: {
+    ...mapMutations({
+
+    })
   }
+}
 </script>
 <!-- vue-loader's scoped css won't work with style-loader -->
 <style scoped lang="scss">

@@ -1,27 +1,27 @@
 <script>
-  import { mapState, mapMutations } from 'vuex'
-  export default {
-    name: 'nav-divider',
-    beforeMount () {
+import { mapState, mapMutations } from 'vuex'
+export default {
+  name: 'nav-divider',
+  beforeMount () {
 
-    },
-    mounted () {
+  },
+  mounted () {
 
-    },
-    destroyed () {
+  },
+  destroyed () {
 
-    },
-    computed: {
-      ...mapState({
+  },
+  computed: {
+    ...mapState({
 
-      })
-    },
-    methods: {
-      ...mapMutations({
+    })
+  },
+  methods: {
+    ...mapMutations({
 
-      })
-    }
+    })
   }
+}
 </script>
 
 <style scoped lang="scss">

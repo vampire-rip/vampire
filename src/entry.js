@@ -1,34 +1,35 @@
+/* eslint-disable import/no-webpack-loader-syntax */
 const ServiceWorker = require(
   'file-loader?name=sw.[hash:hex:3].[ext]!./serviceworker.js')
 
 if ('serviceWorker' in navigator) {
   const REASON_TIME_OUT = '[sw loader] Timeout!'
-  Promise.resolve().
-    then(() =>
+  Promise.resolve()
+    .then(() =>
       new Promise((resolve, reject) => {
-        const {scriptURL} = navigator.serviceWorker.controller || {}
+        const { scriptURL } = navigator.serviceWorker.controller || {}
         if (!scriptURL || scriptURL.split('/').pop() !== ServiceWorker) {
           setTimeout(reject, 8000, REASON_TIME_OUT)
           navigator.serviceWorker.register(ServiceWorker)
             .then(resolve).catch(reject)
         } else resolve()
       })
-    ).
-    then(() => new Promise((resolve, reject) => {
+    )
+    .then(() => new Promise((resolve, reject) => {
       setTimeout(reject, 5000, REASON_TIME_OUT)
       navigator.serviceWorker.ready.then(resolve).catch(reject)
-    })).
-    then(reg => reg.active.postMessage({type: 'ping'})).
-    catch(console.error).
-    then(() =>
+    }))
+    .then(reg => reg.active.postMessage({ type: 'ping' }))
+    .catch(console.error)
+    .then(() =>
       new Promise(resolve =>
-        setTimeout(resolve, 0),
-      ),
-    ).
-    then(() =>
-      import('./index'),
-    ).
-    catch((error) => {
+        setTimeout(resolve, 0)
+      )
+    )
+    .then(() =>
+      import('./index')
+    )
+    .catch((error) => {
       console.warn(
         '↓ While loading script, expecting [Module], received [Error]')
       console.error(error)
@@ -36,8 +37,8 @@ if ('serviceWorker' in navigator) {
         '<span>脚本加载失败T^T 刷新试试？</span>' +
         '<pre>' + error.stack + '</pre>'
       return null
-    }).
-    then((component) => {
+    })
+    .then((component) => {
       navigator.serviceWorker.addEventListener('message', event => {
         if (event.data.updated !== undefined) {
           let status = event.data.updated
@@ -52,8 +53,8 @@ if ('serviceWorker' in navigator) {
                   : '页面下载完成，没有新任务~'),
               type: event.data.updated ? 'refresh' : (status === null
                 ? 'warning'
-                : 'success'),
-            },
+                : 'success')
+            }
           }, '*')
         } else if (event.data.error !== undefined) {
           window.postMessage({
@@ -61,8 +62,8 @@ if ('serviceWorker' in navigator) {
             payload: {
               source: 'Service Worker',
               content: '网络连接错误，' + event.data.error,
-              type: 'error',
-            },
+              type: 'error'
+            }
           }, '*')
         }
       })
@@ -70,9 +71,8 @@ if ('serviceWorker' in navigator) {
         document.querySelector('#page-loader').remove()
         document.body.classList.remove('has-loader')
       }
-      navigator.serviceWorker.controller.postMessage({type: 'ready'})
+      navigator.serviceWorker.controller.postMessage({ type: 'ready' })
     })
-
 } else {
   try {
     import('./index')

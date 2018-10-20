@@ -1,39 +1,36 @@
 <script>
-  import { mapState, mapMutations } from 'vuex'
-
 export default {
-    name: 'navbar',
-    beforeMount () {
+  name: 'navbar',
+  beforeMount () {
 
-    },
-    mounted () {
+  },
+  mounted () {
 
-    },
-    destroyed () {
+  },
+  destroyed () {
 
+  },
+  computed: {
+    menuActive () {
+      return this.$root.showMenu
+    }
+  },
+  methods: {
+    activeRegister () {
+      this.$root.$refs.register.$data.active = true
     },
-    computed: {
-      ...mapState({}),
-      menuActive () {
-        return this.$root.showMenu
-      }
+    activeLogin () {
+      this.$root.$refs.login.$data.active = true
     },
-    methods: {
-      activeRegister () {
-        this.$root.$refs.register.$data.active = true
-      },
-      activeLogin () {
-        this.$root.$refs.login.$data.active = true
-      },
-      toggleMenu (e) {
-        e.stopImmediatePropagation()
-        this.$root.showMenu = !this.$root.showMenu
-      },
-      hideMenu () {
-        this.$root.showMenu = false
-      }
+    toggleMenu (e) {
+      e.stopImmediatePropagation()
+      this.$root.showMenu = !this.$root.showMenu
+    },
+    hideMenu () {
+      this.$root.showMenu = false
     }
   }
+}
 </script>
 
 <style scoped lang="scss">

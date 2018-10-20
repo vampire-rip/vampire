@@ -148,9 +148,9 @@ export default {
       this.leftBarActive = false
     }
   },
-  updated (e) {
+  updated () {
     if (this.$route.path === this.lastRoutePath || this.observer) return
-    this.observer = new MutationObserver(mutations => {
+    this.observer = new MutationObserver(() => {
       elems.forEach(e => e.removeEventListener('click', clickCopyListener))
       Object.assign(this.$data, initiate())
     })

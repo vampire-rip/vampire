@@ -1,3 +1,4 @@
+/* eslint-env serviceworker */
 // chrome --disable-web-security --allow-file-access-from-files --unsafely-treat-insecure-origin-as-secure=http://localhost --user-data-dir=%TEMP%
 
 const CACHE_NAME = 'cache_vampire'
@@ -52,17 +53,17 @@ const cacheMainPage = () => {
   return Promise.resolve().then(() =>
     caches.open(CACHE_NAME)
   ).then(_cache =>
-    cache = _cache
+    (cache = _cache)
   ).then(() =>
     handleCache('/', cache)
   ).then(updated =>
-    hasUpdate = hasUpdate || updated
+    (hasUpdate = hasUpdate || updated)
   ).then(() => {
     if (hasUpdate === null) return null
     return handleCache('/entry.js', cache)
   }
   ).then(updated =>
-    hasUpdate = hasUpdate || updated
+    (hasUpdate = hasUpdate || updated)
   )
 }
 

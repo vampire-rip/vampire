@@ -1,26 +1,23 @@
 <script>
-  import { mapState, mapMutations } from 'vuex'
-  export default {
-    name: 'nav-reveal',
-    props: ['icon'],
-    beforeMount () {
+export default {
+  name: 'nav-reveal',
+  props: ['icon'],
+  beforeMount () {
 
-    },
-    mounted () {
+  },
+  mounted () {
 
-    },
-    destroyed () {
+  },
+  destroyed () {
 
-    },
-    computed: {
-      ...mapState({
+  },
+  computed: {
 
-      })
-    },
-    methods: {
+  },
+  methods: {
 
-    }
   }
+}
 </script>
 
 <style scoped lang="scss">
