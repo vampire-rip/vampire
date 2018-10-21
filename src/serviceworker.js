@@ -8,9 +8,9 @@ const cachePattern = /\.(png|jpe?g|gif|svg|mp4|js|css|woff2?)(\?.*)?$/
 
 const postMessageToClient = (clientId, message) => {
   return Promise.resolve().then(() =>
-    clients.get(clientId),
+    clients.get(clientId)
   ).then(client =>
-    client && client.postMessage(message),
+    client && client.postMessage(message)
   )
 }
 
@@ -22,14 +22,11 @@ const handleCache = (path, cache) => {
     controller.abort()
   }, 5000)
   return Promise.resolve().then(() =>
-    fetch(path, {signal}),
+    fetch(path, { signal })
   ).then(response => {
     if (!response.ok) return null
     let type
-    if (response.headers.get('Content-Type').startsWith('text/html'))
-      type = 'html'
-    else if (response.headers.get('Content-Type').indexOf('javascript') !== -1)
-      type = 'js'
+    if (response.headers.get('Content-Type').startsWith('text/html')) { type = 'html' } else if (response.headers.get('Content-Type').indexOf('javascript') !== -1) { type = 'js' }
     let newText
     return response.text().then(text => {
       if (type === 'html') {
@@ -38,12 +35,12 @@ const handleCache = (path, cache) => {
         if (/(<body.*?>)(.+)(<\/body>)/s.test(text)) {
           newText = text.replace(
             /(<body.*?>)(.+)(<\/body>)/gms,
-            `$1$2${inject}$3`,
+            `$1$2${inject}$3`
           )
         } else if (/(.+)<\/html>/s.test(text)) {
           newText = text.replace(
             /(.+)<\/html>/gms,
-            `$1${inject}</html>`,
+            `$1${inject}</html>`
           )
         } else {
           newText = text + inject
@@ -51,15 +48,15 @@ const handleCache = (path, cache) => {
       } else if (type === 'js') {
         newText = text + ';\nfetch("/sw-tamper-js")'
       }
-      return cache.match(path).
-        then(response => response.text()).
-        catch(() => undefined)
+      return cache.match(path)
+        .then(response => response.text())
+        .catch(() => undefined)
     }).then(oldText => {
       if (oldText !== newText) {
         const init = {
           status: response.status,
           statusText: response.statusText,
-          headers: response.headers,
+          headers: response.headers
         }
         cache.put(path, new Response(newText, init))
         return oldText !== undefined
@@ -67,7 +64,7 @@ const handleCache = (path, cache) => {
       return false
     })
   }).catch(() =>
-    null,
+    null
   ).then(value => {
     clearInterval(cancelInterval)
     return value
@@ -78,19 +75,19 @@ const cacheMainPage = () => {
   let cache
   let hasUpdate = null
   return Promise.resolve().then(() =>
-    caches.open(CACHE_NAME),
+    caches.open(CACHE_NAME)
   ).then(_cache =>
-    (cache = _cache),
+    (cache = _cache)
   ).then(() =>
-    handleCache('/', cache),
+    handleCache('/', cache)
   ).then(updated =>
-    (hasUpdate = hasUpdate || updated),
+    (hasUpdate = hasUpdate || updated)
   ).then(() => {
-      if (hasUpdate === null) return null
-      return handleCache('/entry.js', cache)
-    },
+    if (hasUpdate === null) return null
+    return handleCache('/entry.js', cache)
+  }
   ).then(updated =>
-    (hasUpdate = hasUpdate || updated),
+    (hasUpdate = hasUpdate || updated)
   )
 }
 
@@ -105,10 +102,10 @@ const checkSelfStatus = (client) => {
     method: 'get',
     cache: 'no-cache',
     mode: 'no-cors',
-    signal,
+    signal
   }).then(response => {
     if (response.status >= 400 && response.status <= 501) {
-      console.warn('[sw] wrong client')
+      console.warn('[sw] wrong client', client)
       return false
     }
     console.warn('[sw] self status is good')
@@ -122,7 +119,7 @@ const checkSelfStatus = (client) => {
     if (result === true) {
       console.warn('[sw] try to recover from a wrong client')
       cacheMainPage().then(() =>
-        self.registration.update(),
+        self.registration.update()
       )
     } else {
       console.error('[sw] fatal error, unregister self')
@@ -139,12 +136,12 @@ self.addEventListener('install', function (event) {
 self.addEventListener('activate', function (event) {
   console.log('[sw] activated.')
   event.waitUntil(
-    self.clients.claim(),
+    self.clients.claim()
   )
 })
 
 self.addEventListener('fetch', function (event) {
-  const {request, clientId} = event
+  const { request, clientId } = event
   if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
     return console.warn('[sw] warn devtools are open')
   }
@@ -163,10 +160,10 @@ self.addEventListener('fetch', function (event) {
       isDummyRequest[1] === 'image'
         ? fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAAAMwAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==')
         : Promise.resolve(new Response(null, {
-            headers: {'x-client-id': clientId},
-            status: 204,
-            statusText: 'No Content.',
-          }))
+          headers: { 'x-client-id': clientId },
+          status: 204,
+          statusText: 'No Content.'
+        }))
     )
   }
   event.respondWith(
@@ -179,7 +176,7 @@ self.addEventListener('fetch', function (event) {
         if (!response || !response.ok || response.type === 'opaque') {
           if (response.type !== 'opaque') {
             console.log('[sw] error:', response)
-            postMessageToClient(clientId, {error: response.status})
+            postMessageToClient(clientId, { error: response.status })
           }
           return response
         }
@@ -198,7 +195,7 @@ self.addEventListener('fetch', function (event) {
                   if (!target) continue
                   if ((key[2] === target[2]) && (key[1] === target[1])) {
                     cache.delete(i).then(() =>
-                      console.log('[sw] deleted previous cache', i.url),
+                      console.log('[sw] deleted previous cache', i.url)
                     )
                   }
                 }
@@ -210,10 +207,10 @@ self.addEventListener('fetch', function (event) {
         return response
       }).catch(err => {
         console.warn('[sw] failed to fetch', err)
-        postMessageToClient(clientId, {error: 'ERR_CONNECTION_FAILED'})
+        postMessageToClient(clientId, { error: 'ERR_CONNECTION_FAILED' })
         return err
       })
-    }),
+    })
   )
 })
 
@@ -228,8 +225,8 @@ self.addEventListener('message', message => {
       (state === null ? Promise.resolve(null) : cacheMainPage()).then(
         hasUpdate =>
           clientId
-            ? postMessageToClient(clientId, {updated: hasUpdate})
-            : false,
+            ? postMessageToClient(clientId, { updated: hasUpdate })
+            : false
       )
       break
     case 'ping':
