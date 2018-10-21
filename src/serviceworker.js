@@ -8,9 +8,9 @@ const cachePattern = /\.(png|jpe?g|gif|svg|mp4|js|css|woff2?)(\?.*)?$/
 
 const postMessageToClient = (clientId, message) => {
   return Promise.resolve().then(() =>
-    clients.get(clientId)
+    clients.get(clientId),
   ).then(client =>
-    client && client.postMessage(message)
+    client && client.postMessage(message),
   )
 }
 
@@ -22,25 +22,52 @@ const handleCache = (path, cache) => {
     controller.abort()
   }, 5000)
   return Promise.resolve().then(() =>
-    fetch(path, { signal })
+    fetch(path, {signal}),
   ).then(response => {
     if (!response.ok) return null
+    let type
+    if (response.headers.get('Content-Type').startsWith('text/html'))
+      type = 'html'
+    else if (response.headers.get('Content-Type').indexOf('javascript') !== -1)
+      type = 'js'
     let newText
-    let clone = response.clone()
-    return clone.text().then(text => {
-      newText = text
-      return cache.match(path)
-        .then(response => response.text())
-        .catch(() => undefined)
+    return response.text().then(text => {
+      if (type === 'html') {
+        const inject =
+          '\n<img src="/sw-tamper-image" style="display:none"/>\n'
+        if (/(<body.*?>)(.+)(<\/body>)/s.test(text)) {
+          newText = text.replace(
+            /(<body.*?>)(.+)(<\/body>)/gms,
+            `$1$2${inject}$3`,
+          )
+        } else if (/(.+)<\/html>/s.test(text)) {
+          newText = text.replace(
+            /(.+)<\/html>/gms,
+            `$1${inject}</html>`,
+          )
+        } else {
+          newText = text + inject
+        }
+      } else if (type === 'js') {
+        newText = text + ';\nfetch("/sw-tamper-js")'
+      }
+      return cache.match(path).
+        then(response => response.text()).
+        catch(() => undefined)
     }).then(oldText => {
       if (oldText !== newText) {
-        cache.put(path, response)
+        const init = {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        }
+        cache.put(path, new Response(newText, init))
         return oldText !== undefined
       }
       return false
     })
   }).catch(() =>
-    null
+    null,
   ).then(value => {
     clearInterval(cancelInterval)
     return value
@@ -51,20 +78,57 @@ const cacheMainPage = () => {
   let cache
   let hasUpdate = null
   return Promise.resolve().then(() =>
-    caches.open(CACHE_NAME)
+    caches.open(CACHE_NAME),
   ).then(_cache =>
-    (cache = _cache)
+    (cache = _cache),
   ).then(() =>
-    handleCache('/', cache)
+    handleCache('/', cache),
   ).then(updated =>
-    (hasUpdate = hasUpdate || updated)
+    (hasUpdate = hasUpdate || updated),
   ).then(() => {
-    if (hasUpdate === null) return null
-    return handleCache('/entry.js', cache)
-  }
+      if (hasUpdate === null) return null
+      return handleCache('/entry.js', cache)
+    },
   ).then(updated =>
-    (hasUpdate = hasUpdate || updated)
+    (hasUpdate = hasUpdate || updated),
   )
+}
+
+const checkSelfStatus = (client) => {
+  const url = self.location.href || self.registration.active.scriptURL
+  const controller = new AbortController()
+  const signal = controller.signal
+  const cancelInterval = setInterval(() => {
+    controller.abort()
+  }, 4000)
+  fetch(url, {
+    method: 'get',
+    cache: 'no-cache',
+    mode: 'no-cors',
+    signal,
+  }).then(response => {
+    if (response.status >= 400 && response.status <= 501) {
+      console.warn('[sw] wrong client')
+      return false
+    }
+    console.warn('[sw] self status is good')
+    return true
+  }).catch(err => {
+    console.warn('[sw] self status check encountered error')
+    console.error(err)
+    return true
+  }).then(result => {
+    clearInterval(cancelInterval)
+    if (result === true) {
+      console.warn('[sw] try to recover from a wrong client')
+      cacheMainPage().then(() =>
+        self.registration.update(),
+      )
+    } else {
+      console.error('[sw] fatal error, unregister self')
+      self.registration.unregister()
+    }
+  })
 }
 
 self.addEventListener('install', function (event) {
@@ -75,26 +139,35 @@ self.addEventListener('install', function (event) {
 self.addEventListener('activate', function (event) {
   console.log('[sw] activated.')
   event.waitUntil(
-    self.clients.claim()
+    self.clients.claim(),
   )
 })
 
 self.addEventListener('fetch', function (event) {
-  const request = event.request
+  const {request, clientId} = event
   if (request.cache === 'only-if-cached' && request.mode !== 'same-origin') {
     return console.warn('[sw] warn devtools are open')
   }
-  const { clientId } = event
   if (!knownClients.has(clientId) && clientId) {
     knownClients.add(clientId)
     console.log('[sw] found new client', clientId)
-    if (request.url.split('/').pop() === 'entry.js') {
-      selfDestroyTimer[clientId] = setTimeout(() => {
-        console.log(`[sw] client ${clientId} is bad, refetching.`)
-        selfDestroyTimer[clientId] = null
-        cacheMainPage()
-      }, 2000)
-    }
+    selfDestroyTimer[clientId] = setTimeout(() => {
+      console.warn(`[sw] client ${clientId} may be bad, checking self status`)
+      selfDestroyTimer[clientId] = null
+      checkSelfStatus(clientId)
+    }, 2000)
+  }
+  const isDummyRequest = /sw-tamper-(.{2,5})$/.exec(request.url)
+  if (isDummyRequest !== null) {
+    return event.respondWith(
+      isDummyRequest[1] === 'image'
+        ? fetch('data:image/gif;base64,R0lGODlhAQABAIAAAAAAMwAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==')
+        : Promise.resolve(new Response(null, {
+            headers: {'x-client-id': clientId},
+            status: 204,
+            statusText: 'No Content.',
+          }))
+    )
   }
   event.respondWith(
     caches.match(request).then(response => {
@@ -106,7 +179,7 @@ self.addEventListener('fetch', function (event) {
         if (!response || !response.ok || response.type === 'opaque') {
           if (response.type !== 'opaque') {
             console.log('[sw] error:', response)
-            postMessageToClient(clientId, { error: response.status })
+            postMessageToClient(clientId, {error: response.status})
           }
           return response
         }
@@ -125,7 +198,7 @@ self.addEventListener('fetch', function (event) {
                   if (!target) continue
                   if ((key[2] === target[2]) && (key[1] === target[1])) {
                     cache.delete(i).then(() =>
-                      console.log('[sw] deleted previous cache', i.url)
+                      console.log('[sw] deleted previous cache', i.url),
                     )
                   }
                 }
@@ -137,10 +210,10 @@ self.addEventListener('fetch', function (event) {
         return response
       }).catch(err => {
         console.warn('[sw] failed to fetch', err)
-        postMessageToClient(clientId, { error: 'ERR_CONNECTION_FAILED' })
-        throw err
+        postMessageToClient(clientId, {error: 'ERR_CONNECTION_FAILED'})
+        return err
       })
-    })
+    }),
   )
 })
 
@@ -151,14 +224,17 @@ self.addEventListener('message', message => {
       clearTimeout(selfDestroyTimer[clientId])
       const state = selfDestroyTimer[clientId]
       delete selfDestroyTimer[clientId]
-      console.log(`[sw] nice, client ${clientId} is in good state.`);
-      (state === null ? Promise.resolve(null) : cacheMainPage()).then(hasUpdate =>
-        clientId
-          ? postMessageToClient(clientId, { updated: hasUpdate })
-          : false
+      console.log(`[sw] nice, client ${clientId} is good`);
+      (state === null ? Promise.resolve(null) : cacheMainPage()).then(
+        hasUpdate =>
+          clientId
+            ? postMessageToClient(clientId, {updated: hasUpdate})
+            : false,
       )
       break
     case 'ping':
+      clearTimeout(selfDestroyTimer[clientId])
+      delete selfDestroyTimer[clientId]
       break
   }
 })
