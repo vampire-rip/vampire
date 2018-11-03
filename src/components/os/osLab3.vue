@@ -15,7 +15,7 @@ export default {
 <div :id="$options.name" :class="$options.name" class="content">
   <h1 id="lab-3-user-environment-用户进程">Lab 3: User Environment 用户进程</h1>
   <h2 id="introduction--介绍">Introduction / 介绍</h2>
-  <p>在本次实验中，你将实现使 protected user-mode environment/保护模式下的用户进程 得以运行的基础内核功能。在你的努力下，JOS 内核将建立起用于追踪用户进程的数据结构，创建一个用户进程，读入程序映像并运行。你也会使 JOS 内核有能力响应用户进程的任何系统调用，并处理用户进程所造成的异常。</p>
+  <p>在本次实验中，你将实现使保护模式下的用户进程(英文原文是 environment，下同)得以运行的基础内核功能。在你的努力下，JOS 内核将建立起用于追踪用户进程的数据结构，创建一个用户进程，读入程序映像并运行。你也会使 JOS 内核有能力响应用户进程的任何系统调用，并处理用户进程所造成的异常。</p>
   <p><strong>注意：</strong> 本次实验的 <em>environment</em> 和 <em>process</em> 是可以互换的，它们都指的是使一个程序得以运行的抽象概念。我们引入 <em>environment</em> 这个术语而不是使用更通用的术语 <em>process</em>，是为了强调，JOS的 <em>环境</em> 和 UNIX 的 <em>进程</em> 提供不同的接口，也有着不同的语义。（译注：为了统一，我们仍然使用通用术语“进程”，如需要区分，则单独注明）</p>
   <h3 id="getting-start--开始">Getting Start / 开始</h3>
   <p>使用 Git 来提交你在上交 Lab 2 之后的代码更改（如果有的话），<s>从课程容器中获得最新版本的代码</s>（我们不需要这么做），并基于我们的 lab3 分支 <strong>origin/lab3</strong> 创建一个新的本地分支 <strong>lab3</strong>：</p>
@@ -277,40 +277,40 @@ export default {
   <p>Like a Unix process, a JOS environment couples the concepts of “thread” and “address space”. The thread is defined primarily by the saved registers (the env_tf field), and the address space is defined by the page directory and page tables pointed to by env_pgdir. To run an environment, the kernel must set up the CPU with both the saved registers and the appropriate address space. / 与 Unix 进程类似，JOS 进程的 “线程” 和 “地址空间” 概念也是成对的。线程是指保存的寄存器，也就是 <code>env_tf</code> 这个字段。而地址空间是指 <code>env_pgdir</code> 所指向的页目录和页表。要想运行一个进程，内核必须把保存的寄存器和正确的地址空间都送入 CPU。</p>
   <p>我们的 <code>struct Env</code> 在某种意义上与 xv6 中的 <code>struct proc</code> 是相似的，它们都将进程的用户模式寄存器状态保存进一个叫 <code>Trapframe</code> 的结构。在 JOS 中，不同进程没有它们自己的内核栈，而在 xv6 中进程是有的。这是因为同一时刻 <em>只有一个</em> JOS 进程能够在内核中运行，所以 JOS 只需要一个内核栈。</p>
   <h3 id="allocating-the-environments-array--为进程数组分配空间">Allocating the Environments Array / 为进程数组分配空间</h3>
-  <p>在 Lab 2 中，你通过 <code>mem_init()</code> 为 pages[] 数组分配了内存空间，内核通过这一数组追踪哪些页是空闲的，哪些页被占用了。现在，类似地，你需要进一步修改 <code>mem_init()</code> 来为 <code>Env</code> 结构体的数组， <code>envs</code>，分配内存。</p>
+  <p>在 Lab 2 中，你通过 <code>mem_init()</code> 为 <code>pages[]</code> 数组分配了内存空间，内核通过这一数组追踪哪些页是空闲的，哪些页被占用了。现在，类似地，你需要进一步修改 <code>mem_init()</code> 来为 <code>Env</code> 结构体的数组， <code>envs</code>，分配内存。</p>
   <section type="exercise">
-  <p><strong>练习 1.</strong><br>
-    修改 <code>kern/pmap.c</code> 中的 <code>mem_init()</code> 函数来分配并映射 <code>envs</code> 数组。这个数组包含恰好 <code>NENV</code> 个 <code>Env</code> 结构体实例，这与你分配 <code>pages</code> 数组的方式非常相似。另一个相似之处是，支持 <code>envs</code> 的内存储应该在页表中被只读映射在 <code>UENVS</code> 位置（于 <code>inc/memlayout.h</code> 中定义），所以，用户进程可以从这个数组中读取数据。</p>
+    <p><strong>练习 1.</strong><br>
+      修改 <code>kern/pmap.c</code> 中的 <code>mem_init()</code> 函数来 <strong>分配</strong> 并 <strong>映射</strong> <code>envs</code> 数组。这个数组恰好包含 <code>NENV</code> 个 <code>Env</code> 结构体实例，这与你分配 <code>pages</code> 数组的方式非常相似。另一个相似之处是，支持 <code>envs</code> 的内存储应该被只读映射在页表中 <code>UENVS</code> 的位置（于 <code>inc/memlayout.h</code> 中定义），所以，用户进程可以从这一数组读取数据。</p>
     <p>修改好后，<code>check_kern_pgdir()</code> 应该能够成功执行。</p>
   </section>
   <h3 id="creating-and-runnning-environments--创建并运行进程">Creating and Runnning Environments / 创建并运行进程</h3>
   <p>现在，你需要在 <code>kern/env.c</code> 中完成运行用户进程所必须的代码。因为我们还没有文件系统，我们需要让内核去加载 <em>嵌入内核自身</em> 的静态二进制映像。JOS 将这个二进制文件作为 ELF 可执行映像嵌在内核中。</p>
-  <p>Lab 3 的 <code>GNUmakefile</code> 在 <code>obj/user/</code> 目录生成了一些二进制映像。如果你看了 <code>kern/Makefrag</code> ，你会注意到某种魔法将这些二进制文件直接"链接"到了内核可执行文件中，就像是 <code>.o</code> 文件一样。链接器指令中的 <code>-b binary</code> 选项使得这些文件被链接成未经解释的二进制文件，而不是被链接成那种通常是编译器产生的 <code>.o</code> 文件（就链接器而言，这些文件并不必须是 ELF 映像，它们可以是任何东西，甚至是文本或者图片）。如果在内核构建完毕后看看 <code>obj/kern/kernel.sym</code> ，你会注意到链接器魔法地生成了一些非常有趣的，拥有诸如 <code>_binary_obj_user_hello_start</code>，<code>_binary_obj_user_hello_end</code> 和 <code>_binary_obj_user_hello_size</code> 这样有着模糊名字的符号。链接器通过对二进制文件的文件名进行<a href="https://en.wikipedia.org/wiki/Name_mangling">命名修饰</a>生成这些符号；这些符号为内核代码提供了一种引用这些嵌入的二进制文件的方式。</p>
+  <p>Lab 3 的 <code>GNUmakefile</code> 在 <code>obj/user/</code> 目录生成了一些二进制映像。如果你看了 <code>kern/Makefrag</code> ，你会注意到某种魔法将这些二进制文件直接"链接"到了内核可执行文件中，就像是 <code>.o</code> 文件一样。链接器指令中的 <code>-b binary</code> 选项使得这些文件被链接成未经解释的二进制文件，而不是被链接成那种通常是编译器产生的 <code>.o</code> 文件（就链接器而言，这些文件并不必须是 ELF 映像，它们可以是任何东西，甚至是文本或者图片）。如果在内核构建完毕后看看 <code>obj/kern/kernel.sym</code> ，你会注意到链接器魔法地生成了一些非常有趣的，拥有诸如 <code>_binary_obj_user_hello_start</code>，<code>_binary_obj_user_hello_end</code> 和 <code>_binary_obj_user_hello_size</code> 这样有着晦涩名字的符号。链接器通过对二进制文件的文件名进行<a href="https://en.wikipedia.org/wiki/Name_mangling">命名修饰</a>生成这些符号；这些符号为内核代码提供了一种引用这些嵌入的二进制文件的方式。</p>
   <p>在 <code>kern/init.c</code> 的 <code>i386_init()</code> 方法中，你会看到运行其中一个二进制映像的的代码。然而，用于配置用户进程的关键函数还没有完成，你需要将其补全。</p>
   <section type="exercise">
-  <p><strong>练习 2.</strong><br>
-    在 <code>env.c</code> 中，完成接下来的这些函数：</p>
-  <ul>
-    <li>
-      <p><strong><code>env_init()</code></strong> 初始化全部 <code>envs</code> 数组中的 <code>Env</code> 结构体，并将它们加入到 <code>env_free_list</code> 中。还要调用 <code>env_init_percpu</code> ，这个函数会通过配置段硬件，将其分隔为特权等级 0 (内核) 和特权等级 3（用户）两个不同的段。</p>
-    </li>
-    <li>
-      <p><strong><code>env_setup_vm()</code></strong> 为新的进程分配一个页目录，并初始化新进程的地址空间对应的内核部分。</p>
-    </li>
-    <li>
-      <p><strong><code>region_alloc()</code></strong> 为进程分配和映射物理内存。</p>
-    </li>
-    <li>
-      <p><strong><code>load_icode()</code></strong> 你需要处理 ELF 二进制映像，这个很像是启动引导器(boot loader)已经做好的那样。并将映像内容读入新进程的用户地址空间。</p>
-    </li>
-    <li>
-      <p><strong><code>env_create()</code></strong> 通过调用 <code>env_alloc</code> 分配一个新进程，并调用 <code>load_icode</code> 读入 ELF 二进制映像。</p>
-    </li>
-    <li>
-      <p><strong><code>env_run()</code></strong> 启动给定的在用户模式运行的进程。</p>
-    </li>
-  </ul>
-  <p>当你在完成这些函数时，你也许会发现 cprintf 的新的 <code>%e</code> 很好用，它会打印出与错误代码相对应的描述，例如： <code>r = -E_NO_MEM; panic("env_alloc: %e", r);</code> 会 panic 并打印出 <code>env_alloc: out of memory</code>。</p>
+    <p><strong>练习 2.</strong><br>
+      在 <code>env.c</code> 中，完成接下来的这些函数：</p>
+    <ul>
+      <li>
+        <p><strong><code>env_init()</code></strong> 初始化全部 <code>envs</code> 数组中的 <code>Env</code> 结构体，并将它们加入到 <code>env_free_list</code> 中。还要调用 <code>env_init_percpu</code> ，这个函数会通过配置段硬件，将其分隔为特权等级 0 (内核) 和特权等级 3（用户）两个不同的段。</p>
+      </li>
+      <li>
+        <p><strong><code>env_setup_vm()</code></strong> 为新的进程分配一个页目录，并初始化新进程的地址空间对应的内核部分。</p>
+      </li>
+      <li>
+        <p><strong><code>region_alloc()</code></strong> 为进程分配和映射物理内存。</p>
+      </li>
+      <li>
+        <p><strong><code>load_icode()</code></strong> 你需要处理 ELF 二进制映像，就像是引导加载程序(boot loader)已经做好的那样，并将映像内容读入新进程的用户地址空间。</p>
+      </li>
+      <li>
+        <p><strong><code>env_create()</code></strong> 通过调用 <code>env_alloc</code> 分配一个新进程，并调用 <code>load_icode</code> 读入 ELF 二进制映像。</p>
+      </li>
+      <li>
+        <p><strong><code>env_run()</code></strong> 启动给定的在用户模式运行的进程。</p>
+      </li>
+    </ul>
+    <p>当你在完成这些函数时，你也许会发现 cprintf 的新的 <code>%e</code> 很好用，它会打印出与错误代码相对应的描述，例如： <code>r = -E_NO_MEM; panic("env_alloc: %e", r);</code> 会 panic 并打印出 <code>env_alloc: out of memory</code>。</p>
   </section>
   <p>下面是直到用户代码被运行前的调用层次图，确定你明白了每一步的目的：</p>
   <ul>
@@ -330,14 +330,14 @@ export default {
       </ul>
     </li>
   </ul>
-  <p>当你完成这些，你应该编译你的内核并在 QEMU 下运行。如果一切顺利，系统应该会进入用户空间并执行 <code>hello</code> 这个二进制文件，直到它尝试通过 <code>int</code> 指令进行系统调用。这时就会有麻烦了：因为 JOS 还没有设置好硬件来允许任何从用户空间到内核空间的切换。当 CPU 发现能够处理系统调用中断的方法还没有被配置，它会生成一个 general protection exception (一般保护异常)。然后它会发现这个异常也不能处理，将生成一个 double fault exception (双错异常)。然后它发现还是不能处理，最终生成一个 “triple fault” 并放弃。通常，你将会见到 CPU 重置，系统会重启。虽然对于传统应用程序来说这很重要（<a href="http://blogs.msdn.com/larryosterman/archive/2005/02/08/369243.aspx">为什么？</a>），但在开发内核的过程中自动重启非常令人头痛。所以在这次的实验用的修改版内核中你会看到寄存器转储和一个 “Triple fault” 的信息。</p>
+  <p>当你完成这些，你应该编译你的内核并在 QEMU 下运行。如果一切顺利，系统应该会进入用户空间并执行 <code>hello</code> 这个二进制文件，直到它尝试通过 <code>int</code> 指令进行系统调用。这时就会有麻烦了：因为 JOS 还没有设置好硬件来允许任何从用户空间到内核空间的切换。当 CPU 发现处理系统调用中断的方法还没有被配置，它会生成一个 general protection exception (一般保护异常)。然后它会发现这个异常也不能处理，于是生成一个 double fault exception (双错异常)。然后它发现还是不能处理，最终生成一个 “triple fault” 并放弃。通常，你将会见到 CPU 重置，系统会重启。虽然自动重启对于传统应用程序来说非常重要（<a href="http://blogs.msdn.com/larryosterman/archive/2005/02/08/369243.aspx">为什么？</a>），但在内核开发的过程中非常令人头痛。所以在这次实验中用的修改版内核，你会看到寄存器转储和一个 “Triple fault” 的信息。</p>
   <p>我们接下来就会解决这个问题，不过现在，我们可以用调试器来检查我们确实进入了用户模式。使用 <code>make qemu-gdb</code> 并在 <code>env_pop_tf</code> 处设置一个 GDB 断点，这应当是真正进入用户模式前所执行的最后一个内核函数。用 <code>si</code> 指令在这个函数中步进。处理器应该在一个 <code>iret</code> 指令后进入用户模式。<br>
-    接下来，你应该能够看见用户进程的可执行代码的第一个指令：在 <code>lib/entry.S</code> 中 <code>start</code> 标签的 <code>cmpl</code> 指令。这时候，用 <code>b +0x...</code> 来在 <strong>int $0x30</strong> 处设置一个断点，这是 <code>hello</code> 中 <code>sys_cputs()</code> 这条指令（你需要看看 <code>obj/user/hello.asm</code> 来知道用户空间的地址）。 这个 <code>int</code> 是在控制台中显示一个字符的系统调用。如果不能执行到 <code>int</code>，说明你的地址空间配置或者读人用户程序的代码可能有问题，在继续之前回顾并修复好。</p>
+    接下来，你应该能够看见用户进程的可执行代码的第一个指令：在 <code>lib/entry.S</code> 中 <code>start</code> 标签的 <code>cmpl</code> 指令。这时候，用 <code>b +0x...</code> 来在 <strong>int $0x30</strong> 处设置一个断点，这是 <code>hello</code> 中 <code>sys_cputs()</code> 这条指令（你需要看看 <code>obj/user/hello.asm</code> 来知道用户空间的地址）。 这个 <code>int</code> 是在控制台中显示一个字符的系统调用。如果不能执行到 <code>int</code>，说明你的地址空间配置或者读入用户程序的代码可能有问题，在继续之前回顾并修复好。</p>
   <h3 id="handling-interrupts-and-exceptions--处理中断和异常">Handling Interrupts and Exceptions / 处理中断和异常</h3>
   <p>此时，我们在用户空间的第一个 <code>int $0x30</code> 系统调用指令时走到了死胡同：一旦处理器进入用户模式，就再也没办法回到内核态了。现在，你需要实现基本的异常和系统调用处理，使得内核有可能从用户模式代码中取回处理器的控制权。你应该做的第一件事是彻底熟悉 x86 的中断和异常机制。</p>
   <section type="exercise">
-  <p><strong>练习 3.</strong><br>
-    如果你还没有读过的话，读一读 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm">80386 Programmer’s Manual</a> 中的 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm">Chapter 9, Exceptions and Interrupts</a> （或者 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/ia32/IA32-3A.pdf">IA-32 Developer’s Manual</a> 的第五章）</p>
+    <p><strong>练习 3.</strong><br>
+      如果你还没有读过的话，读一读 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm">80386 Programmer’s Manual</a> 中的 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm">Chapter 9, Exceptions and Interrupts</a> （或者 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/ia32/IA32-3A.pdf">IA-32 Developer’s Manual</a> 的第五章）</p>
   </section>
   <p>在本次实验中，我们大体上是遵照 Intel 所采用的关于中断、异常或者别的什么的术语。然而，像是 exception, trap, interrupt, fault 和 abort 这样的词，在不同架构体系或者操作系统中也没有什么标准含义。即使在某个特定的架构，比如 x86，用起它们来也通常不管它们间到底有什么细微的差别。当你在本次实验之外见到它们的时候，它们的含义也许会有些许不同。</p>
   <h3 id="basics-of-protected-control-transfer--保护控制转移基础">Basics of Protected Control Transfer / 保护控制转移基础</h3>
@@ -355,7 +355,7 @@ export default {
     </li>
     <li>
       <p><strong>The Task State Segment / 任务状态段</strong><br>
-        处理器需要一处在中断或异常发生前保存旧的处理器状态的位置，比如，在处理器调用异常处理函数前的 <strong>EIP</strong> 和 <strong>CS</strong> 的值，使得随后异常处理函数可以恢复旧的状态并从中断的地方继续。但用于保存旧处理器状态的区域必须避免被非特权的用户模式代码访问到，否则有错误的或恶意的用户模式代码可能危及内核安全。<br>
+        处理器需要一处位置，用来在中断或异常发生前保存旧的处理器状态，比如，在处理器调用异常处理函数前的 <strong>EIP</strong> 和 <strong>CS</strong> 的值，使得随后异常处理函数可以恢复旧的状态并从中断的地方继续。但用于保存旧处理器状态的区域必须避免被非特权的用户模式代码访问到，否则有错误的或恶意的用户模式代码可能危及内核安全。<br>
         因此，当 x86 处理器遇到使得特权等级从用户模式切换到内核模式的中断或陷阱时，它也会将栈切换到内核的内存中的栈。一个被称作 <strong>任务状态段, TSS</strong> 的结构体来描述这个栈所处的<a href="https://en.wikipedia.org/wiki/X86_memory_segmentation">段选择子</a>和地址。处理器将 <strong>SS</strong>, <strong>ESP</strong>, <strong>EFLAGS</strong>, <strong>CS</strong>, <strong>EIP</strong> 和一个可能存在的错误代码压入新栈，接着它从中断向量表中读取 <strong>CS</strong> 和 <strong>EIP</strong>，并使 <strong>ESP</strong> 和 <strong>SS</strong> 指向新栈。<br>
         即使 TSS 很大，可以服务于多种不同目的，JOS只将它用于定义处理器从用户模式切换到内核模式时的内核栈。因为 JOS 的 “内核模式” 在 x86 中是特权等级 0，当进入内核模式时，处理器用 TSS 结构体的 <strong>ESP0</strong> 和 <strong>SS0</strong> 字段来定义内核栈。JOS 不使用 TSS 中的其他任何字段。</p>
     </li>
@@ -385,29 +385,29 @@ export default {
   <p>你应该实现的整个流程就像下面这样：<img src="./lab3_4.png" alt="图4"></p>
   <p>每一个异常或者中断在 <code>trapentry.S</code> 中都应该有自己的处理函数， <code>trap_init()</code> 应该为这些处理函数初始化 IDT。每一个中断处理函数都应该在栈中建一个 <code>struct Trapframe</code> （见 <code>inc/trap.h</code> ），并且调用带一个指向 Trapframe (陷阱帧) 地址的参数的 <code>trap()</code> （在 <code>trap.c</code>）。接下来 <code>trap()</code> 就会处理这些异常，或者将其分发给特定的处理函数。</p>
   <section type="exercise">
-  <p><strong>练习 4.</strong><br>
-    编辑 <code>trapentry.S</code> 和 <code>trap.c</code>，以实现上面描述的功能。 <code>trapentry.S</code> 中的宏定义 <code>TRAPHANDLER</code> 和 <code>TRAPHANDLER_NOEC</code>，还有在 <code>inc/trap.h</code> 中的那些 <code>T_</code> 开头的宏定义应该能帮到你。你需要在 <code>trapentry.S</code> 中用那些宏定义为每一个 <code>inc/trap.h</code> 中的 trap (陷阱) 添加一个新的入口点，你也要提供 <code>TRAPHANDLER</code> 宏所指向的 <code>_alltraps</code> 的代码。你还要修改 <code>trap_init()</code> 来初始化 <code>IDT</code>，使其指向每一个定义在 <code>trapentry.S</code> 中的入口点。<code>SETGATE</code> 宏定义在这里会很有帮助。<br>
-    你的 <code>_alltraps</code> 应该</p>
-  <ul>
-    <li>将一些值压栈，使栈帧看起来像是一个 <code>struct Trapframe</code></li>
-    <li>将 <code>GD_KD</code> 读入 <code>%ds</code> 和 <code>%es</code></li>
-    <li><code>push %esp</code> 来传递一个指向这个 <code>Trapframe</code> 的指针，作为传给 <code>trap()</code> 的参数</li>
-    <li><code>call trap</code> （思考：<code>trap</code> 这个函数会返回吗？）</li>
-  </ul>
-  <p>考虑使用 <code>pushal</code> 这条指令。它在形成 <code>struct Trapframe</code> 的层次结构时非常合适。</p>
-  <p>用一些 <code>user</code> 目录下会造成异常的程序测试一下你的陷阱处理代码，比如 <code>user/divzero</code>。现在，你应该能在 <code>make grade</code> 中通过 <code>divzero</code>, <code>softint</code> 和 <code>badsegment</code> 了。</p>
+    <p><strong>练习 4.</strong><br>
+      编辑 <code>trapentry.S</code> 和 <code>trap.c</code>，以实现上面描述的功能。 <code>trapentry.S</code> 中的宏定义 <code>TRAPHANDLER</code> 和 <code>TRAPHANDLER_NOEC</code>，还有在 <code>inc/trap.h</code> 中的那些 <code>T_</code> 开头的宏定义应该能帮到你。你需要在 <code>trapentry.S</code> 中用那些宏定义为每一个 <code>inc/trap.h</code> 中的 trap (陷阱) 添加一个新的入口点，你也要提供 <code>TRAPHANDLER</code> 宏所指向的 <code>_alltraps</code> 的代码。你还要修改 <code>trap_init()</code> 来初始化 <code>IDT</code>，使其指向每一个定义在 <code>trapentry.S</code> 中的入口点。<code>SETGATE</code> 宏定义在这里会很有帮助。<br>
+      你的 <code>_alltraps</code> 应该</p>
+    <ul>
+      <li>将一些值压栈，使栈帧看起来像是一个 <code>struct Trapframe</code></li>
+      <li>将 <code>GD_KD</code> 读入 <code>%ds</code> 和 <code>%es</code></li>
+      <li><code>push %esp</code> 来传递一个指向这个 <code>Trapframe</code> 的指针，作为传给 <code>trap()</code> 的参数</li>
+      <li><code>call trap</code> （思考：<code>trap</code> 这个函数会返回吗？）</li>
+    </ul>
+    <p>考虑使用 <code>pushal</code> 这条指令。它在形成 <code>struct Trapframe</code> 的层次结构时非常合适。</p>
+    <p>用一些 <code>user</code> 目录下会造成异常的程序测试一下你的陷阱处理代码，比如 <code>user/divzero</code>。现在，你应该能在 <code>make grade</code> 中通过 <code>divzero</code>, <code>softint</code> 和 <code>badsegment</code> 了。</p>
   </section>
   <section type="challenge">
-  <p><strong>挑战！</strong><br>
-    现在，无论是在 <code>trapentry.S</code> 中的 <code>TRAPHANDLER</code>，或者是配置它们的 <code>trap.c</code>中，你也许写了太多非常相似的代码了。试着整理一下。调整一下 <code>trapentry.S</code> 中的宏定义，让它自动生成一个给 <code>trap.c</code> 使用的表。注意，你可以在汇编中通过 <code>.text</code> 和 <code>.data</code> <a href="https://en.wikipedia.org/wiki/Directive_(programming)">(这是什么？)</a> 来随时在代码段和数据段切换。</p>
+    <p><strong>挑战！</strong><br>
+      现在，无论是在 <code>trapentry.S</code> 中的 <code>TRAPHANDLER</code>，或者是配置它们的 <code>trap.c</code>中，你也许写了太多非常相似的代码了。试着整理一下。调整一下 <code>trapentry.S</code> 中的宏定义，让它自动生成一个给 <code>trap.c</code> 使用的表。注意，你可以在汇编中通过 <code>.text</code> 和 <code>.data</code> <a href="https://en.wikipedia.org/wiki/Directive_(programming)">(这是什么？)</a> 来随时在代码段和数据段切换。</p>
   </section>
   <section type="question">
-  <p><strong>问题</strong><br>
-    在 <code>answers-lab3.txt</code> 中回答下面这些问题：</p>
-  <ul>
-    <li>对每一个中断/异常都分别给出中断处理函数的目的是什么？换句话说，如果所有的中断都交给同一个中断处理函数处理，现在我们实现的哪些功能就没办法实现了？</li>
-    <li>你有没有额外做什么事情让 <code>user/softint</code> 这个程序按预期运行？打分脚本希望它产生一个一般保护错(陷阱 13)，可是 <code>softint</code> 的代码却发送的是 <code>int $14</code>。<em>为什么</em> 这个产生了中断向量 13 ？如果内核允许 <code>softint</code> 的 <code>int $14</code> 指令去调用内核中断向量 14 所对应的的缺页处理函数，会发生什么？</li>
-  </ul>
+    <p><strong>问题</strong><br>
+      在 <code>answers-lab3.txt</code> 中回答下面这些问题：</p>
+    <ul>
+      <li>对每一个中断/异常都分别给出中断处理函数的目的是什么？换句话说，如果所有的中断都交给同一个中断处理函数处理，现在我们实现的哪些功能就没办法实现了？</li>
+      <li>你有没有额外做什么事情让 <code>user/softint</code> 这个程序按预期运行？打分脚本希望它产生一个一般保护错(陷阱 13)，可是 <code>softint</code> 的代码却发送的是 <code>int $14</code>。<em>为什么</em> 这个产生了中断向量 13 ？如果内核允许 <code>softint</code> 的 <code>int $14</code> 指令去调用内核中断向量 14 所对应的的缺页处理函数，会发生什么？</li>
+    </ul>
   </section>
   <p>到这里，本次实验的 Part A 就结束了。不要忘了将 <code>answers-lab3</code> 添加进 git，并提交你的修改，<s>并在截止日期前运行 make handin</s>（如果你已经在这时完成了 Part B，就不用再提交一次啦）。</p>
   <h2 id="part-b-page-faults-breakpoints-exceptions-and-system-calls--缺页，断点与系统调用">Part B: Page Faults, Breakpoints Exceptions, and System Calls / 缺页，断点与系统调用</h2>
@@ -415,62 +415,62 @@ export default {
   <h3 id="handling-page-faults--缺页处理">Handling Page Faults / 缺页处理</h3>
   <p>中断向量 14, <code>T_PGFLT</code>. 对应的缺页异常，是在这次和下次实验中我们都会用到很多次的非常重要的一个异常。当处理器发生缺页时，它将造成缺页的线性(或者说，虚拟)地址存储在一个特别的处理器控制寄存器 <code>CR2</code> 中。在 <code>trap.c</code>，我们已经提供了一个特别的函数 <code>page_fault_handler()</code> 的开始，来处理缺页异常。</p>
   <section type="exercise">
-  <p><strong>练习 5.</strong><br>
-    修改 <code>trap_dispatch()</code>，将缺页异常分发给 <code>page_fault_handler()</code>。你现在应该能够让 <code>make grade</code> 通过 <code>faultread</code>，<code>faultreadkernel</code>，<code>faultwrite</code> 和 <code>faultwritekernel</code> 这些测试了。如果这些中的某一个不能正常工作，你应该找找为什么，并且解决它。记住，你可以用 <code>make run-x</code> 或者 <code>make run-x-nox</code> 来直接使 JOS 启动某个特定的用户程序。</p>
+    <p><strong>练习 5.</strong><br>
+      修改 <code>trap_dispatch()</code>，将缺页异常分发给 <code>page_fault_handler()</code>。你现在应该能够让 <code>make grade</code> 通过 <code>faultread</code>，<code>faultreadkernel</code>，<code>faultwrite</code> 和 <code>faultwritekernel</code> 这些测试了。如果这些中的某一个不能正常工作，你应该找找为什么，并且解决它。记住，你可以用 <code>make run-x</code> 或者 <code>make run-x-nox</code> 来直接使 JOS 启动某个特定的用户程序。</p>
   </section>
   <p>接下来你将实现系统调用，这样就能让内核更有能力处理缺页了。</p>
   <h3 id="the-breakpoint-exception--断点">The Breakpoint Exception / 断点</h3>
   <p>中断向量 3, <code>T_BKPT</code>, 所对应的断点异常通常用于调试器。调试器将程序代码中的指令临时替换为一个特别的 1 字节 <code>int3</code> 软件中断指令来插入断点，在 JOS 中，我们有一点点滥用这个功能，让它变为任何用户进程都可以唤起 JOS 内核监视器的伪系统调用。不过，如果我们把 JOS 内核监视器当成是最原始的调试器的话，这样做也许还蛮正确的。例如，在 <code>lib/panic.c</code> 中定义的用户模式下的 <code>panic()</code> 方法，就是打印出 panic message 之后调用一个 <code>int3</code>。</p>
   <section type="exercise">
-  <p><strong>练习 6.</strong><br>
-    修改 <code>trap_dispatch()</code> 使断点异常唤起内核监视器。现在，你应该能够让 <code>make grade</code> 在 <code>breakpoint</code> 测试中成功了。</p>
+    <p><strong>练习 6.</strong><br>
+      修改 <code>trap_dispatch()</code> 使断点异常唤起内核监视器。现在，你应该能够让 <code>make grade</code> 在 <code>breakpoint</code> 测试中成功了。</p>
   </section>
   <section type="challenge">
-  <p><strong>挑战！</strong><br>
-    修改你的 JOS 内核，让你能够在断点之后从当前位置恢复运行，或者在断点之后继续单步运行。你需要理解 <code>EFLAGS</code> 中的某个特定的位来实现单步运行。</p>
+    <p><strong>挑战！</strong><br>
+      修改你的 JOS 内核，让你能够在断点之后从当前位置恢复运行，或者在断点之后继续单步运行。你需要理解 <code>EFLAGS</code> 中的某个特定的位来实现单步运行。</p>
   </section>
   <section type="challenge">
-  <p><strong>可选：</strong><br>
-    如果你非常热爱挑战，试着找一些 x86 反汇编代码，比如，从 QEMU 中拿到它，或者从 GNU binutils 中找找，或者自己写一些。拓展 JOS 内核监视器，使其能够反汇编并显示你正在单步执行的指令。结合我们在 lab 2 中实现的符号表，这些事情就是真正的内核调试器所做的了。</p>
+    <p><strong>可选：</strong><br>
+      如果你非常热爱挑战，试着找一些 x86 反汇编代码，比如，从 QEMU 中拿到它，或者从 GNU binutils 中找找，或者自己写一些。拓展 JOS 内核监视器，使其能够反汇编并显示你正在单步执行的指令。结合我们在 lab 2 中实现的符号表，这些事情就是真正的内核调试器所做的了。</p>
   </section>
   <section type="question">
-  <p><strong>问题</strong></p>
-  <ul>
-    <li>断点那个测试样例可能会生成一个断点异常，或者生成一个一般保护错，这取决你是怎样在 IDT 中初始化它的入口的（换句话说，你是怎样在 <code>trap_init</code> 中调用 <code>SETGATE</code> 方法的）。为什么？你应该做什么才能让断点异常像上面所说的那样工作？怎样的错误配置会导致一般保护错？</li>
-    <li>你认为这样的机制意义是什么？尤其要想想测试程序 <code>user/softint</code> 的所作所为 / 尤其要考虑一下 <code>user/softint</code> 测试程序的行为。</li>
-  </ul>
+    <p><strong>问题</strong></p>
+    <ul>
+      <li>断点那个测试样例可能会生成一个断点异常，或者生成一个一般保护错，这取决你是怎样在 IDT 中初始化它的入口的（换句话说，你是怎样在 <code>trap_init</code> 中调用 <code>SETGATE</code> 方法的）。为什么？你应该做什么才能让断点异常像上面所说的那样工作？怎样的错误配置会导致一般保护错？</li>
+      <li>你认为这样的机制意义是什么？尤其要想想测试程序 <code>user/softint</code> 的所作所为 / 尤其要考虑一下 <code>user/softint</code> 测试程序的行为。</li>
+    </ul>
   </section>
   <h3 id="系统调用">系统调用</h3>
   <p>用户程序通过系统调用来请求内核为其做些事情。当用户进程进行系统调用时，处理器进入内核模式，处理器和内核协作来保存用户进程的状态，内核执行对应的代码来处理系统调用，并恢复用户进程。用户进程如何吸引内核注意并提出它的需求的具体方法根据系统的不同而不同。</p>
   <p>在 JOS 内核中，我们使用会造成处理器中断的 <code>int</code> 指令。特别地，我们选用 <code>int $0x30</code> 作为系统调用中断。我们已经定义了一个常量，<code>T_SYSCALL</code> 为 48 (0x30)。你需要设立对应中断描述符来允许用户进程产生这个中断。注意，硬件不会产生中断 0x30，所以允许用户代码生成它也不会有什么歧义。</p>
   <p>应用会将系统调用号和系统调用参数放入寄存器。这样的话，内核也不用去用户进程的栈或者指令流中到处找了。系统调用号会存在 <code>%eax</code> 中，最多 5 个参数会相应地存在 <code>%edx</code>, <code>%ecx</code>, <code>%ebx</code>, <code>%edi</code> 和 <code>%esi</code> 中。内核将返回值放在 <code>%eax</code> 中。发起系统调用的汇编代码已经为你写好了，在 <code>lib/syscall.c</code> 的 <code>syscall()</code> 。你应该读一读，确保你清楚到底发生了什么。</p>
   <section type="exercise">
-  <p><strong>练习 7.</strong><br>
-    在内核中断描述符表中为中断向量 <code>T_SYSCALL</code> 添加一个处理函数。你需要编辑 <code>kern/trapentry.S</code> 和 <code>kern/trap.c</code> 的 <code>trap_init()</code> 方法。你也需要修改 <code>trap_dispath()</code> 来将系统调用中断分发给在 <code>kern/syscall.c</code> 中定义的 <code>syscall()</code>。确保如果系统调用号不合法，<code>syscall()</code> 返回 <code>-E_INVAL</code>。你应该读一读并且理解 <code>lib/syscall.c</code>（尤其是内联汇编例程）来确定你已经理解了系统调用接口。通过调用相应的内核函数，处理在 <code>inc/syscall.h</code> 中定义的所有系统调用。</p>
-  <p>通过 <code>make run-hello</code> 运行你的内核下的 <code>user/hello</code> 用户程序，它现在应该能在控制台中打印出 <strong>hello, world</strong> 了，接下来会在用户模式造成一个缺页。如果这些没有发生，也许意味着你的系统调用处理函数不太对。现在应该也能在 <code>make grade</code> 中通过 <code>testbss</code> 这个测试了。</p>
+    <p><strong>练习 7.</strong><br>
+      在内核中断描述符表中为中断向量 <code>T_SYSCALL</code> 添加一个处理函数。你需要编辑 <code>kern/trapentry.S</code> 和 <code>kern/trap.c</code> 的 <code>trap_init()</code> 方法。你也需要修改 <code>trap_dispath()</code> 来将系统调用中断分发给在 <code>kern/syscall.c</code> 中定义的 <code>syscall()</code>。确保如果系统调用号不合法，<code>syscall()</code> 返回 <code>-E_INVAL</code>。你应该读一读并且理解 <code>lib/syscall.c</code>（尤其是内联汇编例程）来确定你已经理解了系统调用接口。通过调用相应的内核函数，处理在 <code>inc/syscall.h</code> 中定义的所有系统调用。</p>
+    <p>通过 <code>make run-hello</code> 运行你的内核下的 <code>user/hello</code> 用户程序，它现在应该能在控制台中打印出 <strong>hello, world</strong> 了，接下来会在用户模式造成一个缺页。如果这些没有发生，也许意味着你的系统调用处理函数不太对。现在应该也能在 <code>make grade</code> 中通过 <code>testbss</code> 这个测试了。</p>
   </section>
   <section type="challenge">
-  <p><strong>挑战！</strong><br>
-    通过使用 <code>sysenter</code> 和 <code>sysexit</code> 指令实现系统调用，而不是 <code>int 0x30</code> 和 <code>iret</code>。</p>
-  <p>这两个指令是 Intel 设计的，比 <code>int/iret</code> 要快很多的系统调用方式。他们用寄存器而不是栈，并且靠着推测段寄存器被如何使用来实现这一点。这些指令的细节实现可以在英特尔的参考手册的 Volume 2B 找到。</p>
-  <p>在 JOS 中支持这一方式最简单的办法是在 <code>kern/trapentry.S</code> 中添加一个 <code>sysenter_handler</code> 方法来保存回到用户环境所需要的足够的信息，设置内核环境，将 <code>syscall()</code> 所用到的参数入栈并直接调用 <code>syscall()</code>。一旦 <code>syscall()</code>返回，把一切准备就绪并执行 <code>sysexit</code> 指令。你同样也需要在 <code>kern/init.c</code> 中加入一些代码来提供必要的 model specific registers (MSRs)，Section 6.1.2 in Volume 2 of the AMD Architecture Programmer’s Manual and the reference on SYSENTER in Volume 2B of the Intel reference manuals give good descriptions of the relevant MSRs. You can find an implementation of wrmsr to add to inc/x86.h for writing to these MSRs <a href="http://www.garloff.de/kurt/linux/k6mod.c">here</a>.</p>
-  <p>最后，需要修改 <code>lib/syscall.c</code> 以支持通过 <code>sysenter</code> 来进行系统调用。这是一个可能的 <code>sysenter</code> 指令的寄存器结构：</p>
-  <p><img src="./lab3_5.png" alt="图5"></p>
-  <p>GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存器。不要忘了要么保存（入栈）和恢复（出栈）你所<a href="https://en.wikipedia.org/wiki/Clobbering">覆写</a>的寄存器，要么告诉内联汇编器你准备覆写它们。内联汇编器不支持自动保存 <code>%ebp</code>，所以你需要加一些代码来自己保存和恢复它。可以通过使用像是 <code>leal after_sysenter_label, %%esi</code> 这样的指令将返回地址放入 <code>%esi</code> 中。</p>
-  <p>注意这样做只能支持 4 个参数，所以你需要把旧的系统调用方式保留下来来支持那些有 5 个参数的系统调用。而且，因为这个快速路径不会更新当前进程的陷阱帧，所以它也不适合我们接下来要加入的一些系统调用。<br>
-    一旦我们在下个实验中启用异步中断，你也许需要再回顾一下你的代码。具体来说，你应该需要在返回用户进程时启用中断，<code>sysexit</code> 不会帮你这么做。</p>
+    <p><strong>挑战！</strong><br>
+      通过使用 <code>sysenter</code> 和 <code>sysexit</code> 指令实现系统调用，而不是 <code>int 0x30</code> 和 <code>iret</code>。</p>
+    <p>这两个指令是 Intel 设计的，比 <code>int/iret</code> 要快很多的系统调用方式。他们用寄存器而不是栈，并且靠着推测段寄存器被如何使用来实现这一点。这些指令的细节实现可以在英特尔的参考手册的 Volume 2B 找到。</p>
+    <p>在 JOS 中支持这一方式最简单的办法是在 <code>kern/trapentry.S</code> 中添加一个 <code>sysenter_handler</code> 方法来保存回到用户环境所需要的足够的信息，设置内核环境，将 <code>syscall()</code> 所用到的参数入栈并直接调用 <code>syscall()</code>。一旦 <code>syscall()</code>返回，把一切准备就绪并执行 <code>sysexit</code> 指令。你同样也需要在 <code>kern/init.c</code> 中加入一些代码来提供必要的 model specific registers (MSRs)，Section 6.1.2 in Volume 2 of the AMD Architecture Programmer’s Manual and the reference on SYSENTER in Volume 2B of the Intel reference manuals give good descriptions of the relevant MSRs. You can find an implementation of wrmsr to add to inc/x86.h for writing to these MSRs <a href="http://www.garloff.de/kurt/linux/k6mod.c">here</a>.</p>
+    <p>最后，需要修改 <code>lib/syscall.c</code> 以支持通过 <code>sysenter</code> 来进行系统调用。这是一个可能的 <code>sysenter</code> 指令的寄存器结构：</p>
+    <p><img src="./lab3_5.png" alt="图5"></p>
+    <p>GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存器。不要忘了要么保存（入栈）和恢复（出栈）你所<a href="https://en.wikipedia.org/wiki/Clobbering">覆写</a>的寄存器，要么告诉内联汇编器你准备覆写它们。内联汇编器不支持自动保存 <code>%ebp</code>，所以你需要加一些代码来自己保存和恢复它。可以通过使用像是 <code>leal after_sysenter_label, %%esi</code> 这样的指令将返回地址放入 <code>%esi</code> 中。</p>
+    <p>注意这样做只能支持 4 个参数，所以你需要把旧的系统调用方式保留下来来支持那些有 5 个参数的系统调用。而且，因为这个快速路径不会更新当前进程的陷阱帧，所以它也不适合我们接下来要加入的一些系统调用。<br>
+      一旦我们在下个实验中启用异步中断，你也许需要再回顾一下你的代码。具体来说，你应该需要在返回用户进程时启用中断，<code>sysexit</code> 不会帮你这么做。</p>
   </section>
   <h3 id="启动用户模式">启动用户模式</h3>
   <p>用户程序在 <code>lib/entry.S</code> 之上开始运行。在一些初始化后，代码会调用在 <code>lib/libmain.c</code> 中的 <code>libmain()</code>。你应该修改 <code>libmain()</code> 来初始化全局指针 <code>thisenv</code> 来指向当前进程在 <code>envs</code> 数组对应的 <code>struct Env</code> (Note that lib/entry.S has already defined envs to point at the UENVS mapping you set up in Part A. / 注意在 Part A 中 <code>lib/entry.S</code> 已经定义了 <code>envs</code> 并指向了 <code>UENVS</code> 映射)。 提示：看一下 <code>inc/env.h</code> 并用上 <code>sys_getenvid</code>。</p>
   <p><code>libmain()</code> 接下来调用 <code>umain</code>，以 hello 这个程序为例，是 <code>user/hello.c</code>。注意，它在打出 <code>hello, world</code> 后，试图访问 <code>thisenv-&gt;env_id</code>。这是它之前出错的原因。现在，因为你已经初始化好了 <code>thisenv</code>，应该不会再出错了。如果它还是有问题，你也许没有正确的将 <code>UENVS</code> 映射为用户可读的（回到在 Part A 的 <code>pmap.c</code>，这是我们第一次使用 <code>UENVS</code> 这片内存区域的地方。）</p>
   <section type="exercise">
-  <p><strong>练习 8.</strong><br>
-    在用户库文件中补全所需要的代码，并启动你的内核。你应该能看到 <code>user/hello</code> 打出了 <code>hello, world</code> 和 <code>i am environment 00001000</code>。接下来，<code>user/hello</code> 尝试通过调用 <code>sys_env_destory()</code> 方法退出（在 <code>lib/libmain.c</code> 和 <code>lib/exit.c</code>）。因为内核目前只支持单用户进程，它应该会报告它已经销毁了这个唯一的进程并进入内核监视器。在这时，你应该能够在 <code>make grade</code> 中通过 <code>hello</code> 这个测试了。</p>
+    <p><strong>练习 8.</strong><br>
+      在用户库文件中补全所需要的代码，并启动你的内核。你应该能看到 <code>user/hello</code> 打出了 <code>hello, world</code> 和 <code>i am environment 00001000</code>。接下来，<code>user/hello</code> 尝试通过调用 <code>sys_env_destory()</code> 方法退出（在 <code>lib/libmain.c</code> 和 <code>lib/exit.c</code>）。因为内核目前只支持单用户进程，它应该会报告它已经销毁了这个唯一的进程并进入内核监视器。在这时，你应该能够在 <code>make grade</code> 中通过 <code>hello</code> 这个测试了。</p>
   </section>
   <h3 id="page-faults-and-memory-protection--缺页和内存保护">Page faults and memory protection / 缺页和内存保护</h3>
   <p>内存保护是操作系统一个至关重要的功能，用以保证一个程序的错误不会导致其他程序崩溃或者操作系统自身崩溃。</p>
   <p>操作系统通常依赖硬件支持来实现内存保护。OS 保持与硬件同步哪些虚拟地址是有效的哪些是无效的。当一个程序试图访问无效的地址或者它无权访问的地址时，处理器可以在出错的指令处停止这个程序，并带着它要进行的操作等信息陷入内核。如果错误可以修正，内核可以修复它并让程序继续运行。如果错误不可修正，程序不能继续运行，因为它永远也不能通过这个造成异常的指令。</p>
-  <p>举个可以修复的错误的例子：自动拓展的堆栈。在许多系统中，内核最初只为用户程序分配 1 个栈页，如果程序试图访问栈更下面的页，内核会自动为这些页分配内存并让程序继续。这样做的话，内核只需要按用户程序所需分配内存，而程序也可以工作在自己拥有任意大栈的幻想中 / 运行在不用考虑栈到底有多大的环境中。</p>
+  <p>举个可以修复的错误的例子：自动拓展的堆栈。在许多系统中，内核最初只为用户程序分配 1 个栈页，如果程序试图访问栈更下面的页，内核会自动为这些页分配内存并让程序继续运行。这样做的话，内核只需要按用户程序所需分配内存，而程序也可以在自己拥有任意大的栈的幻想中工作 / 运行在不用考虑栈到底有多大的环境中。</p>
   <p>系统调用提出了一个与内存保护有关的非常有趣的问题，多数系统调用接口允许用户程序向内核传递指针。这些指针指向提供给内核读取或写入的用户缓冲区。内核在执行系统调用时要对这些指针解引用，这样做存在两个问题：</p>
   <ul>
     <li>内核发生缺页可能要比在用户程序中缺页有更严重的潜在问题。如果内核在操作自身数据结构的时候发生缺页（内核错误），缺页处理函数应该让内核恐慌（也就是整个系统都会崩溃）。因此当内核对用户提供的指针解引用时，它需要一种办法记住发生的任何缺页事实上都是用户程序造成的。</li>
@@ -480,24 +480,24 @@ export default {
   <p>现在，你需要通过一种策略来仔细审视所有从用户空间传到内核的所有指针来解决这两个问题。当一个程序向内核传递指针时，内核需要检查指向的地址是否是用户空间的地址，也要检查页表是否允许对应的内存操作。</p>
   <p>因此，内核从来不会因为对用户提供的指针解引用而发生缺页。如果内核真的发生缺页了，那么它就应该恐慌并终止。</p>
   <section type="exercise">
-  <p><strong>练习 9.</strong><br>
-    修改 <code>kern/trap.c</code>，如果缺页发生在内核模式，应该恐慌。</p>
-  <p>提示：要判断缺页是发生在用户模式还是内核模式下，只需检查 <code>tf_cs</code> 的低位。</p>
-  <p>读一读 <code>kern/pmap.c</code> 中的 <code>user_mem_assert</code> 并实现同一文件下的 <code>user_mem_check</code>。</p>
-  <p>调整 <code>kern/syscall.c</code> 来验证系统调用的参数。</p>
-  <p>启动你的内核，运行 <code>user/buggyhello</code> (<code>make run-buggyhello</code>)。这个进程应该会被销毁，内核 <em>不应该</em> 恐慌，你应该能够看见类似</p>
-  <pre><code>[00001000] user_mem_check assertion failure for va 00000001
+    <p><strong>练习 9.</strong><br>
+      修改 <code>kern/trap.c</code>，如果缺页发生在内核模式，应该恐慌。</p>
+    <p>提示：要判断缺页是发生在用户模式还是内核模式下，只需检查 <code>tf_cs</code> 的低位。</p>
+    <p>读一读 <code>kern/pmap.c</code> 中的 <code>user_mem_assert</code> 并实现同一文件下的 <code>user_mem_check</code>。</p>
+    <p>调整 <code>kern/syscall.c</code> 来验证系统调用的参数。</p>
+    <p>启动你的内核，运行 <code>user/buggyhello</code> (<code>make run-buggyhello</code>)。这个进程应该会被销毁，内核 <em>不应该</em> 恐慌，你应该能够看见类似</p>
+    <pre><code>[00001000] user_mem_check assertion failure for va 00000001
 [00001000] free env 00001000
 Destroyed the only environment - nothing more to do!
 </code></pre>
-  <p>这样的消息。</p>
-  <p>最后，修改在 <code>kern/kdebug.c</code> 的 <code>debuginfo_eip</code>，对 <code>usd</code>, <code>stabs</code>, <code>stabstr</code> 都要调用 <code>user_mem_check</code>。修改之后，如果你运行 <code>user/breakpoint</code> ，你应该能在内核监视器下输入 <code>backtrace</code> 并且看到调用堆栈遍历到 <code>lib/libmain.c</code>，接下来内核会缺页并恐慌。是什么造成的内核缺页？你不需要解决这个问题，但是你应该知道为什么会发生缺页。（注：如果在看到 <code>lib/libmain.c</code> 前就发生了缺页，说明 <code>user_mem_assert</code> 或之前某次实验的代码可能存在问题。如果整个过程都没发生缺页，说明上面的实现可能有问题。）</p>
+    <p>这样的消息。</p>
+    <p>最后，修改在 <code>kern/kdebug.c</code> 的 <code>debuginfo_eip</code>，对 <code>usd</code>, <code>stabs</code>, <code>stabstr</code> 都要调用 <code>user_mem_check</code>。修改之后，如果你运行 <code>user/breakpoint</code> ，你应该能在内核监视器下输入 <code>backtrace</code> 并且看到调用堆栈遍历到 <code>lib/libmain.c</code>，接下来内核会缺页并恐慌。是什么造成的内核缺页？你不需要解决这个问题，但是你应该知道为什么会发生缺页。（注：如果在看到 <code>lib/libmain.c</code> 前就发生了缺页，说明 <code>user_mem_assert</code> 或之前某次实验的代码可能存在问题。如果整个过程都没发生缺页，说明上面的实现可能有问题。）</p>
   </section>
   <p>你刚刚实现的机制对于恶意的用户程序应该也有效，试试 <code>user/evilhello</code>。</p>
   <section type="exercise">
-  <p><strong>练习 10.</strong><br>
-    启动你的内核，运行 <code>user/evilhello</code>。进程应该被销毁，内核不应该恐慌，你应该能看到类似下面的输出：</p>
-  <pre><code>[00000000] new env 00001000
+    <p><strong>练习 10.</strong><br>
+      启动你的内核，运行 <code>user/evilhello</code>。进程应该被销毁，内核不应该恐慌，你应该能看到类似下面的输出：</p>
+    <pre><code>[00000000] new env 00001000
 [00001000] user_mem_check assertion failure for va f010000c
 [00001000] free env 00001000
 </code></pre>
@@ -509,5 +509,16 @@ Destroyed the only environment - nothing more to do!
   <p>校： Sun Yi-Ran (sunrisefox@vampire.rip)</p>
   <p>如有翻译错误，请务必联系喵 ，以便及时更正</p>
   <p><a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a></p>
+  <p>HTML 编译： <a href="https://stackedit.io/">StackEdit</a></p>
+  <p>编译脚本：</p>
+  <pre class=" language-javascript"><code class="prism  language-javascript">Handlebars<span class="token punctuation">.</span><span class="token function">registerHelper</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>options<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">var</span> result <span class="token operator">=</span> options<span class="token punctuation">.</span><span class="token function">fn</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—section (.+?)—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;section type="$1"&gt;'</span><span class="token punctuation">)</span>
+  result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—end section—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;/section&gt;'</span><span class="token punctuation">)</span>
+  <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  </code></pre>
+    <pre class=" language-javascript"><code class="prism  language-javascript"><span class="token punctuation">{</span><span class="token punctuation">{</span>#transform<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">{</span><span class="token punctuation">{</span><span class="token punctuation">{</span>files<span class="token number">.0</span><span class="token punctuation">.</span>content<span class="token punctuation">.</span>html<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">{</span><span class="token punctuation">{</span><span class="token operator">/</span>transform<span class="token punctuation">}</span><span class="token punctuation">}</span>
+  </code></pre>
 </div>
 </template>
