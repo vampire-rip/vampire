@@ -292,7 +292,7 @@ export default {
     在 <code>env.c</code> 中，完成接下来的这些函数：</p>
   <ul>
     <li>
-      <p><strong><code>env_init()</code></strong> 初始化全部 <code>envs</code> 数组中的 <code>Env</code> 结构体，并将它们加入到 <code>env_free_list</code> 中。还要调用 <code>env_init_percpu</code> ，这个函数会将段硬件的分隔不同段用于特权等级 0 (内核) 和特权等级 3（用户）。</p>
+      <p><strong><code>env_init()</code></strong> 初始化全部 <code>envs</code> 数组中的 <code>Env</code> 结构体，并将它们加入到 <code>env_free_list</code> 中。还要调用 <code>env_init_percpu</code> ，这个函数会通过配置段硬件，将其分隔为特权等级 0 (内核) 和特权等级 3（用户）两个不同的段。</p>
     </li>
     <li>
       <p><strong><code>env_setup_vm()</code></strong> 为新的进程分配一个页目录，并初始化新进程的地址空间对应的内核部分。</p>
