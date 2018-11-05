@@ -491,7 +491,7 @@ export default {
 Destroyed the only environment - nothing more to do!
 </code></pre>
     <p>这样的消息。</p>
-    <p>最后，修改在 <code>kern/kdebug.c</code> 的 <code>debuginfo_eip</code>，对 <code>usd</code>, <code>stabs</code>, <code>stabstr</code> 都要调用 <code>user_mem_check</code>。修改之后，如果你运行 <code>user/breakpoint</code> ，你应该能在内核监视器下输入 <code>backtrace</code> 并且看到调用堆栈遍历到 <code>lib/libmain.c</code>，接下来内核会缺页并恐慌。是什么造成的内核缺页？你不需要解决这个问题，但是你应该知道为什么会发生缺页。（注：如果在看到 <code>lib/libmain.c</code> 前就发生了缺页，说明 <code>user_mem_assert</code> 或之前某次实验的代码可能存在问题。如果整个过程都没发生缺页，说明上面的实现可能有问题。）</p>
+    <p>最后，修改在 <code>kern/kdebug.c</code> 的 <code>debuginfo_eip</code>，对 <code>usd</code>, <code>stabs</code>, <code>stabstr</code> 都要调用 <code>user_mem_check</code>。修改之后，如果你运行 <code>user/breakpoint</code> ，你应该能在内核监视器下输入 <code>backtrace</code> 并且看到调用堆栈遍历到 <code>lib/libmain.c</code>，接下来内核会缺页并恐慌。是什么造成的内核缺页？你不需要解决这个问题，但是你应该知道为什么会发生缺页。（注：如果整个过程都没发生缺页，说明上面的实现可能有问题。如果在能够看到 <code>lib/libmain.c</code> 前就发生了缺页，可能说明之前某次实验的代码存在问题，也可能是由于 GCC 的优化，它没有遵守使我们这个功能得以正常工作的函数调用传统，如果你能合理解释它，即使不能看到预期的结果也没有关系。）</p>
   </section>
   <p>你刚刚实现的机制对于恶意的用户程序应该也有效，试试 <code>user/evilhello</code>。</p>
   <section type="exercise">
