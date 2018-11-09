@@ -47,12 +47,12 @@ export default {
   & > .subtitle {
 
   }
-  &:first-child {
+  &:nth-child(1), &:nth-child(4) {
     border-color: #209cee;
     color: #12537e;
     background-color: #f6fbfe;
   }
-  &:nth-child(2) {
+  &:nth-child(2), &:nth-child(5) {
     border-color: #23d160;
     color: #0e301a;
     background-color: #f6fef9;
@@ -75,6 +75,14 @@ export default {
   <div :id="$options.name" :class="$options.name">
     <div class="tile is-ancestor is-12"  style="justify-content: center; width: 100%; overflow: hidden">
       <div class="tile is-6 is-vertical is-parent" style="overflow: hidden">
+        <router-link to="/os/lab1" tag="div" class="tile is-child">
+          <p class="title">Lab 1</p>
+          <p class="subtitle">Booting a PC <br/> 启动 PC</p>
+        </router-link>
+        <router-link to="/os/lab2" tag="div" class="tile is-child">
+          <p class="title">Lab 2</p>
+          <p class="subtitle">Memory Management <br/> 内存管理</p>
+        </router-link>
         <router-link to="/os/lab3" tag="div" class="tile is-child">
           <p class="title">Lab 3</p>
           <p class="subtitle">User Environment <br/> 用户进程</p>
