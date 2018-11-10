@@ -24,7 +24,10 @@ export default {
   methods: {
     ...mapMutations({
 
-    })
+    }),
+    navTo(url) {
+      window.location = url;
+    }
   }
 }
 </script>
@@ -47,12 +50,17 @@ export default {
   & > .subtitle {
 
   }
-  &:nth-child(1), &:nth-child(4) {
+  &.is-highlighted {
+    border-color: #c00!important;
+    color: #4d0000!important;
+    background-color: #fff1f2!important;
+  }
+  &:nth-child(1) {
     border-color: #209cee;
     color: #12537e;
     background-color: #f6fbfe;
   }
-  &:nth-child(2), &:nth-child(5) {
+  &:nth-child(2){
     border-color: #23d160;
     color: #0e301a;
     background-color: #f6fef9;
@@ -75,6 +83,10 @@ export default {
   <div :id="$options.name" :class="$options.name">
     <div class="tile is-ancestor is-12"  style="justify-content: center; width: 100%; overflow: hidden">
       <div class="tile is-6 is-vertical is-parent" style="overflow: hidden">
+        <div @click="navTo('//os.vampire.rip')" class="tile is-child is-highlighted">
+          <p class="title">Vampire OS</p>
+          <p class="subtitle"> New Location <br/> 新的文档放到这里了喵~</p>
+        </div>
         <router-link to="/os/lab1" tag="div" class="tile is-child">
           <p class="title">Lab 1</p>
           <p class="subtitle">Booting a PC <br/> 启动 PC</p>
@@ -83,6 +95,8 @@ export default {
           <p class="title">Lab 2</p>
           <p class="subtitle">Memory Management <br/> 内存管理</p>
         </router-link>
+      </div>
+      <div class="tile is-6 is-vertical is-parent" style="overflow: hidden">
         <router-link to="/os/lab3" tag="div" class="tile is-child">
           <p class="title">Lab 3</p>
           <p class="subtitle">User Environment <br/> 用户进程</p>

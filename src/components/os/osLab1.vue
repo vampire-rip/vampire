@@ -18,12 +18,10 @@ export default {
   <p>本次的实验分为三个部分，第一部分主要熟悉一下 x86 汇编语言、QEMU 的 x86 模拟器和 PC 开机的引导过程。第二部分检查内核的引导加载程序，它位于实验源代码的 boot 文件夹中。最后，第三部分深入研究内核本身的初始化，相关代码在 kernel 目录中。在后文中，我们把内核命名为 JOS。</p>
   <h3 id="软件配置">软件配置</h3>
   <p>本次实验和接下来的实验课程中所用到的所有文件，我们都使用 <a href="http://www.git-scm.com/">Git</a> 版本控制系统来分发。想了解更多 Git 相关的信息，请查看 <a href="http://www.kernel.org/pub/software/scm/git/docs/user-manual.html">Git user’s manual</a> , 如果你以前使用过其他的版本控制系统，这里有一个非常有用的 Git 的简单介绍 <a href="http://eagain.net/articles/git-for-computer-scientists/">CS-Oriented overview of Git</a>。</p>
-  <p>
-    本实验来自 MIT 的实验课程的 2018 版本，相关的内容我们已下载到本地的服务器中。请从 <code>环境搭建指南</code> 的 <code>下载实验工具包</code> 部分下载我们的 <strong>实验所需源代码</strong> <code>lab.zip</code> 开始实验。</p>
-  <p>解压缩后，实验相关的代码在 <code>lab</code> 文件夹下。<br>
-    </p>
+  <section class="custom-block warning" type="warning"><strong>有关本课程的的Git远程仓库</strong><p>本实验来自 MIT 的实验课程的 2018 版本，相关的内容我们已下载到本地的服务器中。请从 <code>环境搭建指南</code> 的 <code>下载实验工具包</code> 部分下载我们的 <strong>实验所需源代码</strong> <code>lab.zip</code> 开始实验。</p>
+    <p>解压缩后，实验相关的代码在 <code>lab</code> 文件夹下。</p></section>
   <h3 id="getting-start--开始">Getting Start / 开始</h3>
-  <p>Git允许你跟踪你所修改的代码。例如你完成了一到两个练习，想要为你的进度做个检查点，可以通过一下的指令来提交你的修改：</p>
+  <p>Git允许你跟踪你所修改的代码。例如你完成了一到两个练习，想要为你的进度做个检查点，可以通过以下指令来提交你的修改：</p>
   <pre class=" language-bash"><code class="prism  language-bash"><span class="token function">git</span> commit -am <span class="token string">'my solution for lab1 exercise 9'</span>
 </code></pre>
   <p>也可以通过 <code>git diff</code> 指令浏览你修改的内容。运行 <code>git diff</code> 将会显示从上次提交后你代码中的写改动，<code>git diff orign/lab1</code> 将会展示自从初始化代码后的全部改动。</p>
@@ -36,11 +34,8 @@ export default {
   <h3 id="x86汇编入门">X86汇编入门</h3>
   <p>如果你之前并不怎么熟悉 x86 汇编语言，通过本课程你将会很快熟悉汇编语言。<a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/pcasm-book.pdf">PC Assembly Language Book</a> 是一本非常适合初学者的书。这本书里面包含了一些你可能听过或者没听过的特性，希望这能对你有助。</p>
   <p>不过，不巧的是这本书上的例子是用的 <code>NASM</code> 汇编器，而我们用的是 <code>GNU</code> 的汇编器。<code>NASM</code> 用的是所谓的英特尔的语法而 <code>GNU</code> 使用的是 <code>AT&amp;T</code> 的语法。即便是表达的是相同的意思，汇编文件也会有很大的不同，至少表面上是这样，不过对于两者之间的转换是非常简单的，两者间的转换在 <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brennan’s Guide to Inline Assembly</a> 深入讲解。</p>
-  <section type="exercise">
-    <p><strong>练习 1.</strong><br>
-      熟悉 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">6.828 reference materials page</a> 上提供的汇编语言的资料。你不需要马上阅读这部分的资料，但是实验的过程中你肯定会用这一部分资料。</p>
-    <p>我们建议阅读一下 <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brenna’s Guide to Inline Assembly</a> 的 <code>The Sytax</code> 这一部分的内容。这一部分内容给出了我们将在 JOS 中与 GUN 汇编器一起使用的 AT&amp;T 汇编语法的一个很好的（非常简要的）描述。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 1.</strong><p>熟悉 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">6.828 reference materials page</a> 上提供的汇编语言的资料。你不需要马上阅读这部分的资料，但是实验的过程中你肯定会用这一部分资料。</p>
+    <p>我们建议阅读一下 <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brenna’s Guide to Inline Assembly</a> 的 <code>The Sytax</code> 这一部分的内容。这一部分内容给出了我们将在 JOS 中与 GUN 汇编器一起使用的 AT&amp;T 汇编语法的一个很好的（非常简要的）描述。</p></section>
   <p>当然，x86 汇编语言的定义是根据英特尔架构的指令集合设计的，你可以在参考资料页面上看到这些内容：一个是 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm">80386 Programmer’s Reference Manual</a>，这个版本相较于最新的 CPU 手册更加简短，但详细的描述了我们将要在 6.828 中使用的所有 x86 处理器的特点；最新，最全面英特尔的处理器资料是 <a href="http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html">IA-32 Intel Architecture Software Developer’s Manuals</a>，这里面包含了很多英特尔处理器的新特性，我们课程中不会讲解，但是如果你感兴趣，可以自己去了解。<a href="http://developer.amd.com/documentation/guides/Pages/default.aspx#manuals">AMD</a> 也提供了一套相同的（甚至更好理解的）处理器文档。保留一份 AMD 或者英特尔架构手册为以后的日常使用，以便在以后的你想了解或者查询某些处理器的特点或者指令方便使用。</p>
   <h3 id="模拟-x86">模拟 x86</h3>
   <p>相较于在个人计算机上开发操作系统，我们用一个模拟 PC 的程序来进行开发：你为模拟器所编写的代码也可以在一个真实的 PC 上运行。用模拟器可以简化调试，举例来说，你可以在 x86 模拟器中设置一个断点去调试，这一点在真实的 x86 处理器上很难做到。</p>
@@ -106,9 +101,7 @@ K&gt;
 + symbol-file obj/kern/kernel
 (gdb)
 </code></pre>
-  <p>
-    如果之前完全遵守我们的步骤，此时不应该存在任何问题。如果使用旧版代码，请按旧版文档进行操作。<br>
-  </p>
+  <section class="custom-block warning" type="warning"><strong>提示</strong><p>如果之前完全遵守我们的步骤，此时不应该存在任何问题。如果使用旧版代码，请按旧版文档进行操作。</p></section>
   <p>注意这一行:</p>
   <pre class=" language-gdb"><code class="prism  language-gdb">[f000:fff0] 0xffff0: ljmp   $0xf000,$0xe05b
 </code></pre>
@@ -124,10 +117,7 @@ K&gt;
    = 0xffff0
 </code></pre>
   <p>0xFFFF0 是 BIOS（0x100000）最后 16 个字节的地址。因此，BIOS 做的第一件事是通过 jmp 跳转到在 BIOS 较前的位置。毕竟在 16 字节中能完成的工作是很有限的。</p>
-  <section type="exercise">
-    <p><strong>练习 2.</strong><br>
-      使用 GDB 的 <code>si</code> (Step Instruction) 指令来跟踪 ROM BIOS 中的几个指令，并且尝试这些指令是要做什么的。你可能需要查看 <a href="http://web.archive.org/web/20040404164813/members.iweb.net.au/~pstorr/pcbook/book2/book2.htm">Phil Storrs I/O Ports Description</a> ，以及<a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">6.828 reference materials page</a> 其他的资料。并不需要弄清楚所有的细节-仅需要先弄清楚 BIOS 工作的一个思路。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 2.</strong><p>使用 GDB 的 <code>si</code> (Step Instruction) 指令来跟踪 ROM BIOS 中的几个指令，并且尝试这些指令是要做什么的。你可能需要查看 <a href="http://web.archive.org/web/20040404164813/members.iweb.net.au/~pstorr/pcbook/book2/book2.htm">Phil Storrs I/O Ports Description</a> ，以及<a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">6.828 reference materials page</a> 其他的资料。并不需要弄清楚所有的细节 —— 仅需要先弄清楚 BIOS 工作的一个思路。</p></section>
   <p>当BIOS 运行起来，他建立了一个中断描述符表，并初始化例如 VGA 设备各种变量。这就是为什么会从 QEMU 窗口上看到 <strong>Starting SeaBIOS</strong> 信息。</p>
   <p>当初始化了 PCI 总线和所有 BIOS 知道的重要设备后。它开始搜索启动设备例如软盘，硬盘，光盘等。最终，当找到了一个启动磁盘，BIOS 就开始从磁盘里面读取启动加载程序，并将电脑的控制权转让给启动程序。</p>
   <h2 id="part2：引导加载程序">Part2：引导加载程序</h2>
@@ -138,12 +128,9 @@ K&gt;
   <p>在了解了引导加载程序的源代码后，查看文件 <code>obj/boot/boot.asm</code>。该文件是我们的 <code>GNUmakefile</code> 在编译引导加载程序之后创建的引导加载程序的反汇编代码。从这个反汇编文件中可以很容易地查看所有引导加载程序代码所在的物理内存的确切位置，并且可以更轻松地监视 GDB 中的引导加载程序中发生的情况。同样，<code>obj/kern/kernel.asm</code> 中包含的是 JOS 内核的反汇编结果，这通常对调试很有用。</p>
   <p>你可以使用 <code>b</code> 命令在 GDB 中设置地址断点。例如，<code>b *0x7c00</code> 设置地址 <code>0x7C00</code> 的断点。一旦执行停在了断点处，可以使用继续执行 <code>c</code> 与 <code>si</code> 命令：<code>c</code> 使 QEMU 继续执行，直到下一个断点（或者直至你在 GDB 按下 <code>Ctrl-C</code>）；<code>si N</code> 的意思是连续执行 <code>N</code> 条指令后停下来。</p>
   <p>要检查内存中的指令（GDB 会自动打印出马上要执行的下一个指令，但并不会显示其他指令），请使用该 <code>x/i</code> 命令。该命令的语法是 <code>x/Ni ADDR</code> ，其中 <code>N</code> 是要反汇编的连续指令的数量，<code>ADDR</code> 是要开始反汇编的存储器地址。</p>
-  <section type="exercise">
-    <p><strong>练习 3.</strong><br>
-      查看 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/labguide.html">lab tools guide</a>，特别是 GDB 命令部分。即使你熟悉GDB，这包括一些对操作系统工作非常有用且深奥 GDB 命令。</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 3.</strong><p>查看 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/labguide.html">lab tools guide</a>，特别是 GDB 命令部分。即使你熟悉GDB，这包括一些对操作系统工作非常有用且深奥 GDB 命令。</p>
     <p>在地址 <code>0x7c00</code> 设置断点，这是引导扇区将被加载的位置。继续执行直到那个断点。跟踪 <code>boot/boot.S</code> 中的代码，使用源代码和反汇编文件 <code>obj/boot/boot.asm</code> 来跟踪你在哪里。还可以使用 GDB 中的 <code>x/i</code> 命令来反汇编引导加载程序中的指令序列，并将原始引导加载程序源代码与 <code>obj/boot/boot.asm</code> 和 GDB 中的反汇编进行比较。</p>
-    <p>在 <code>boot/main.c</code> 中跟踪到 <code>bootmain()</code>，然后进入 <code>readsect()</code>。识别与 <code>readsect()</code> 中的每个语句相对应的确切的汇编指令。完成对 <code>readsect()</code> 其余部分跟踪，并回到 <code>bootmain()</code> ，并找到用来从盘读取内核其余部分的 for 循环的开始和结束的位置。找出循环完成后运行的代码，在那里设置一个断点，并继续执行到该断点。然后再走完 <code>bootloader</code> 程序的其余部分。</p>
-  </section>
+    <p>在 <code>boot/main.c</code> 中跟踪到 <code>bootmain()</code>，然后进入 <code>readsect()</code>。识别与 <code>readsect()</code> 中的每个语句相对应的确切的汇编指令。完成对 <code>readsect()</code> 其余部分跟踪，并回到 <code>bootmain()</code> ，并找到用来从盘读取内核其余部分的 for 循环的开始和结束的位置。找出循环完成后运行的代码，在那里设置一个断点，并继续执行到该断点。然后再走完 <code>bootloader</code> 程序的其余部分。</p></section>
   <p>确保你可以回答以下问题：</p>
   <ul>
     <li>处理器什么时候开始执行 32 位代码？如何完成的从 16 位到 32 位模式的切换？</li>
@@ -153,13 +140,10 @@ K&gt;
   </ul>
   <h3 id="加载内核">加载内核</h3>
   <p>现在我们将进一步详细介绍在 <code>boot/main.c</code> 中 <code>bootloader</code> 程序的 C 语言部分。在这之前，需要回顾一些 C 编程的基础知识。</p>
-  <section type="exercise">
-    <p><strong>练习 4.</strong><br>
-      阅读 C 中的指针编程。C 语言的最佳参考是 Brian Kernighan 和 Dennis Ritchie（被称为 K＆R）的 <a href="http://video.mobisys.cc/materials/tools/CProgrammingLanguageCN.pdf">C编程语言（中文翻译版）</a>。</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 4.</strong><p>阅读 C 中的指针编程。C 语言的最佳参考是 Brian Kernighan 和 Dennis Ritchie（被称为 K＆R）的 <a href="http://video.mobisys.cc/materials/tools/CProgrammingLanguageCN.pdf">C编程语言（中文翻译版）</a>。</p>
     <p>通读 K＆R 书中 5.1（指针和地址）到 5.5（字符指针和函数）的内容。然后下载 <a href="http://video.mobisys.cc/materials/tools/pointers.c">pointers.c</a> 的代码，运行它，并确保你了解所有打印值的来源。特别是，请确保你理解第 1 行和第 6 行中指针指向哪里的地址，第 2 行到第 4 行的值是如何被写入的，以及为什么第 5 行中打印的值看起来像是错乱的。</p>
     <p>还有其他有关C指针的参考书（例如，<a href="http://video.mobisys.cc/pages/pdos.csail.mit.edu/6.828/2014/readings/pointers.pdf">A tutorial by Ted Jensen</a>，其中大量引用了 K＆R 的内容）。</p>
-    <p>警告： 除非你已经彻底掌握了 C 语言，否则不要跳过这段阅读练习。如果你真的不了解 C 中的指针，那么在后续的实验中你将会遭受无法忍受的痛苦，最后会很难理解他们。相信我们，你肯定不想知道 <strong>很难</strong> 到底是多难的。</p>
-  </section>
+    <p>警告： 除非你已经彻底掌握了 C 语言，否则不要跳过这段阅读练习。如果你真的不了解 C 中的指针，那么在后续的实验中你将会遭受无法忍受的痛苦，最后会很难理解他们。相信我们，你肯定不想知道 <strong>很难</strong> 到底是多难的。</p></section>
   <p>为了能够理解 <code>boot/main.c</code>，你需要知道什么是 ELF 二进制文件。当你编译和链接 C 程序（如 JOS 内核）时，编译器会将每个 C 源文件（<code>.c</code>）转换为对象文件（<code>.o</code>），其中包含了以硬件预期的二进制格式编码的汇编语言指令。链接器随后将所有编译的对象文件合并成一个二进制镜像文件，如 <code>obj/kern/kernel</code>，在这种情况下，我们把他叫作是 ELF 格式的二进制形式，代表 <code>Executable and Linkable Format</code>（可执行和可链接格式）。</p>
   <p>有关此格式的完整信息可在 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">reference page</a> 上的 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/elf.pdf">the ELF specification</a> 获得，但你不需要深入了解此类中此格式的详细信息。虽然整体格式是相当强大和复杂的，但大部分复杂的部分是为了支持动态加载共享库，我们不会在作业中涉及这部分内容。在 <a href="http://en.wikipedia.org/wiki/Executable_and_Linkable_Format">Wikipedia page</a> 有一个简短的描述。</p>
   <p>如果只是为了完成本实验，你可以简单地将 ELF 可执行文件理解为具有加载信息的文件头部，后跟几个程序片段，每个程序片段都是连续的代码或数据块，用于加载到内存中指定的地址处。引导加载程序不会修改代码或数据; 它将其加载到内存中并开始执行它。</p>
@@ -185,20 +169,14 @@ K&gt;
   <p>然后程序头在 <code>objdump</code> 的输出中的 <code>Program Headers</code> 下列出。需要加载到内存中的 ELF 对象的区域是标记为 <code>LOAD</code> 的区域。它还提供了每个程序头的其他信息，例如虚拟地址（<code>vaddr</code>），物理地址（<code>paddr</code>）和加载区域的大小（<code>memsz</code> 和 <code>filesz</code>）。</p>
   <p>下面我们回到 <code>boot/main.c</code> 的代码分析中，每个程序头的 <code>ph-&gt;p_pa</code> 字段包含段的目标物理地址（在这种情况下，它实际上是一个物理地址，尽管 ELF 规范对该字段的实际含义是模糊的）。</p>
   <p>BIOS 将引导扇区加载到内存地址 <code>0x7C00</code> 处，这个地址是引导扇区的加载地址。这也是引导扇区开始执行的地方，所以这也是它的链接地址。我们通过在 <code>boot/Makefrag</code> 中利用参数 <code>-Ttext 0x7C00</code> 传递给链接器，以设置链接地址。有了这个配置，链接器将在生成的代码中产生正确的内存地址。</p>
-  <section type="exercise">
-    <p><strong>练习 5.</strong><br>
-      跟踪 <code>bootloader</code> 程序的前几个指令，找到开始使用链接地址的第一条指令，即，如果你使用了错误的链接地址，那么执行到这里的时候就必须要停下来，否则就会发生错误。然后将 <code>boot/Makefrag</code> 中的链接地址更改为一个错误的地址，运行 <code>make clean</code>，用 <code>make</code> 命令重新编译实验，然后再次跟踪到引导加载程序，看看会发生什么。不要忘了改变链接地址后要再次执行 <code>make clean</code>！</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 5.</strong><p>跟踪 <code>bootloader</code> 程序的前几个指令，找到开始使用链接地址的第一条指令，即，如果你使用了错误的链接地址，那么执行到这里的时候就必须要停下来，否则就会发生错误。然后将 <code>boot/Makefrag</code> 中的链接地址更改为一个错误的地址，运行 <code>make clean</code>，用 <code>make</code> 命令重新编译实验，然后再次跟踪到引导加载程序，看看会发生什么。不要忘了改变链接地址后要再次执行 <code>make clean</code>！</p></section>
   <p>再来看一下内核的加载和链接地址。与 <code>bootloader</code> 程序不同，这两个地址不一样：内核告诉引导加载程序将其加载到低地址（1兆字节）的内存中，但它希望从高地址执行。我们将在下一节中介绍我们如何实现这一过程的。</p>
   <p>除了段信息之外，<code>ELF Header</code> 中还有一个对我们很重要的字段，叫做 <code>e_entry</code>。该字段保存程序中入口点的链接地址：在程序的代码段中，开始执行的第一条语句在内存中的位置地址。你可以通过以下命令看到入口点：</p>
   <pre class=" language-bash"><code class="prism  language-bash">objdump -f obj/kern/kernel
 </code></pre>
   <p>你现在应该能够了解 <code>boot/main.c</code> 的意义了，这是一个最简单的 ELF 加载程序。它将内核的每个部分从磁盘读取到存储区的加载地址，然后跳转到内核的入口点。</p>
-  <section type="exercise">
-    <p><strong>练习 6.</strong><br>
-      我们可以使用 GDB 的 x 命令检查内存。 <a href="http://sourceware.org/gdb/current/onlinedocs/gdb_9.html#SEC63">GDB manual</a> 中详细讲解了命令的用法，但就目前而言，知道命令 <code>x/Nx ADDR</code> 能够在 <code>ADDR</code> 处打印 <code>N</code> 个存储器字就足够了。（请注意，命令中的 <code>x</code> 均为小写。） 警告：字的大小不是通用标准。在 GNU 程序集中，一个字是两个字节（<code>xorw</code> 中的 <code>w</code>，代表字，表示 2 个字节）。</p>
-    <p>复位机器（退出 <code>QEMU / GDB</code> 并再次启动）。在 BIOS 进入引导加载程序的那一刻停下来，检查内存中 <code>0x00100000</code> 地址开始的 8 个字的内容，然后再次运行，到 <code>bootloader</code> 进入内核的那一点再停下来，再次打印内存 <code>0x00100000</code> 的内容。为什么这 8 个字的内容会有所不同？第二次停下来的时候，打印出来的内容是什么？（你不需要使用QEMU来回答这个问题，思考即可）</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 6.</strong><p>我们可以使用 GDB 的 x 命令检查内存。 <a href="http://sourceware.org/gdb/current/onlinedocs/gdb_9.html#SEC63">GDB manual</a> 中详细讲解了命令的用法，但就目前而言，知道命令 <code>x/Nx ADDR</code> 能够在 <code>ADDR</code> 处打印 <code>N</code> 个存储器字就足够了。（请注意，命令中的 <code>x</code> 均为小写。） 警告：字的大小不是通用标准。在 GNU 程序集中，一个字是两个字节（<code>xorw</code> 中的 <code>w</code>，代表字，表示 2 个字节）。</p>
+    <p>复位机器（退出 <code>QEMU / GDB</code> 并再次启动）。在 BIOS 进入引导加载程序的那一刻停下来，检查内存中 <code>0x00100000</code> 地址开始的 8 个字的内容，然后再次运行，到 <code>bootloader</code> 进入内核的那一点再停下来，再次打印内存 <code>0x00100000</code> 的内容。为什么这 8 个字的内容会有所不同？第二次停下来的时候，打印出来的内容是什么？（你不需要使用QEMU来回答这个问题，思考即可）</p></section>
   <h2 id="part3-内核">Part3: 内核</h2>
   <p>现在我们将开始更详细的了解 JOS 内核(你终于可以开始写一些代码了)。像 bootloader 程序一样，内核开始于一些汇编语言代码，用于将一切准备就绪，以便 C 语言代码可以正常执行。</p>
   <h3 id="使用虚拟内存解决位置依赖问题">使用虚拟内存解决位置依赖问题</h3>
@@ -207,18 +185,12 @@ K&gt;
   <p>许多机器在地址 <code>0xf0100000</code> 没有任何物理内存，所以我们不能指望能够在那里存储内核。 相反，我们将使用处理器的内存管理硬件将虚拟地址 <code>0xf0100000</code>（内核代码期望运行的链接地址）映射到物理地址 <code>0x00100000</code>（引导加载程序将内核加载到物理内存中的位置）。 这样，尽管内核的虚拟地址足够高，为用户进程留下了足够的地址空间，但它将被加载到 PC RAM 内的 1MB 的物理内存中，就在 BIOS ROM 的上方。 这种方法要求 PC 具有至少几兆字节的物理内存（从而物理地址 <code>0x00100000</code> 的位置是是有可用的物理内存的），在 1990 年左右之后，任何一台 PC 都有这么多内存。</p>
   <p>实际上，在下一个实验中，我们将把 <code>256MB PC</code> 的物理地址空间从物理地址 <code>0x00000000</code> 到 <code>0x0fffffff</code> 映射到虚拟地址 <code>0xf0000000</code> 到 <code>0xffffffff</code>。 你现在应该会知道为什么 <code>JOS</code> 只能使用第一个 <code>256MB</code> 的物理内存了。</p>
   <p>现在，我们将映射前 <code>4MB</code> 的物理内存，这足以让我们开始运行。我们在 <code>kern/entrypgdir.c</code> 中使用手写的，静态初始化的页面目录和页面表来执行此操作。在本实验中，你不必了解这个工作的细节，只需要知道它实现的效果。直到 <code>kern/entry.S</code> 设置 <code>CR0_PG</code> 标志，内存引用被视为物理地址（严格来说，它们是线性地址，但是 <code>boot/boot.S</code> 中把线性地址和物理地址设置成了一致的，我们后面也不会再改变这个配置了）。一旦设置了 <code>CR0_PG</code>，内存引用就变成了虚拟地址，虚拟内存硬件转换为物理地址。<code>entry_pgdir</code> 将 <code>0xf0000000</code> 至 <code>0xf0400000</code> 范围内的虚拟地址转换为物理地址 <code>0x00000000</code> 至 <code>0x00400000</code>，同时也将虚拟地址 <code>0x00000000</code> 至 <code>0x00400000</code> 转换为物理地址 <code>0x00000000</code> 至 <code>0x00400000</code>。任何不在这两个范围之一的虚拟地址将导致硬件异常，因为我们还没有设置中断处理，将导致 <code>QEMU</code> 打印出机器状态并退出（如果你没有使用我们实验提供的带补丁的 QEMU，则会无休止地重新启动）。</p>
-  <section type="exercise">
-    <p><strong>练习 7.</strong><br>
-      使用 QEMU 和 GDB 跟踪到 JOS 内核并停止在 <code>movl％eax，％cr0</code>。 查看内存中在地址 <code>0x00100000</code> 和 <code>0xf0100000</code> 处的内容。 下面，使用 GDB 命令 <code>stepi</code> 单步执行该指令。 指令执行后，再次检查 <code>0x00100000</code> 和 <code>0xf0100000</code> 的内存。 确保你明白刚刚发生的事情。</p>
-    <p>新映射建立后的第一条指令是什么，如果映射配置错误，它还能不能正常工作？ 注释掉 <code>kern/entry.S</code> 中的 <code>movl％eax，％cr0</code>，再次追踪到它，看看你的猜测是否正确。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 7.</strong><p>使用 QEMU 和 GDB 跟踪到 JOS 内核并停止在 <code>movl％eax，％cr0</code>。 查看内存中在地址 <code>0x00100000</code> 和 <code>0xf0100000</code> 处的内容。 下面，使用 GDB 命令 <code>stepi</code> 单步执行该指令。 指令执行后，再次检查 <code>0x00100000</code> 和 <code>0xf0100000</code> 的内存。 确保你明白刚刚发生的事情。</p>
+    <p>新映射建立后的第一条指令是什么，如果映射配置错误，它还能不能正常工作？ 注释掉 <code>kern/entry.S</code> 中的 <code>movl％eax，％cr0</code>，再次追踪到它，看看你的猜测是否正确。</p></section>
   <h3 id="格式化打印到控制台">格式化打印到控制台</h3>
   <p>大多数人认为像 <code>printf()</code> 这样的功能是理所当然的，有时甚至将它们视为 C 语言的 <strong>原始本能</strong>。 但是在操作系统内核中，我们必须自己实现所有的 I/O。</p>
   <p>阅读 <code>kern/printf.c</code>，<code>lib/printfmt.c</code> 和 <code>kern/console.c</code>，并确保你了解他们的关系。以后的实验室会清楚，为什么 <code>printfmt.c</code> 位于 <code>lib</code> 目录中。</p>
-  <section type="exercise">
-    <p><strong>练习 8.</strong><br>
-      我们省略了一小段代码 —— 使用 <code>％o</code>形式的模式打印八进制数字所需的代码。查找并补全这个代码片段。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 8.</strong><p>我们省略了一小段代码 —— 使用 <code>％o</code>形式的模式打印八进制数字所需的代码。查找并补全这个代码片段。</p></section>
   <p>确保你现在能够回答下面的问题：</p>
   <ul>
     <li>
@@ -256,23 +228,14 @@ K&gt;
       <p>假设 GCC 更改了它的调用约定，以声明的顺序将参数压入栈中，这样会使最后一个参数最后被压入。 你将如何更改 <code>cprintf</code> 或其接口，以便仍然可以传递一个可变数量的参数？</p>
     </li>
   </ul>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      增强控制台的能力以允许以打印不同颜色的文本。传统的方法是使它解析嵌入在待打印的文本字符串中的 ANSI 转义序列，但是你可以使用任何你喜欢的机制。 在实验的 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">参考内容</a> 和网络上其他地方有对 VGA 显示硬件进行编程的大量信息。 如果你真的喜欢挑战，也可以尝试将 VGA 硬件切换到图形模式，并使控制台将文本绘制到图形帧缓冲区上。</p>
-  </section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>增强控制台的能力以允许以打印不同颜色的文本。传统的方法是使它解析嵌入在待打印的文本字符串中的 ANSI 转义序列，但是你可以使用任何你喜欢的机制。 在实验的 <a href="http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html">参考内容</a> 和网络上其他地方有对 VGA 显示硬件进行编程的大量信息。 如果你真的喜欢挑战，也可以尝试将 VGA 硬件切换到图形模式，并使控制台将文本绘制到图形帧缓冲区上。</p></section>
   <h3 id="栈">栈</h3>
   <p>在本实验的最后一个练习中，我们将更详细地探讨 C 语言在 x86 上使用栈的方式，并编写一个新的内核监视器函数，该函数能够实现栈的回溯打印：一个保存引导到当前执行点的嵌套调用指令的指令指针（IP）值的列表。</p>
-  <section type="exercise">
-    <p><strong>练习 9.</strong><br>
-      确定内核在哪里完成了栈的初始化，以及栈所在内存的确切位置。内核如何为栈保留空间？栈指针初始化时指向的是保留区域的哪一端？</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 9.</strong><p>确定内核在哪里完成了栈的初始化，以及栈所在内存的确切位置。内核如何为栈保留空间？栈指针初始化时指向的是保留区域的哪一端？</p></section>
   <p>x86 栈指针（esp寄存器）指向栈当前正在使用的最低地址位置。所有低于这个位置的栈保留区域都是空闲的。将值压入到栈时，首先会将栈指针的值减少，然后将值写入栈指针指向的位置。 从栈中弹出一个值，需要读取栈指针指向的值，然后增加栈指针。 在 32 位模式下，栈只能保存 32 位值，而 esp 总是可以被 4 整除。各种 x86 指令（如函数调用）都是与硬件绑定的，会固定使用栈指针寄存器来操作数据。</p>
   <p>ebp（基地址指针）寄存器与栈的关联关系来自于软件设计的传统。在进入 C 函数时，函数的前导代码通常会将之前的函数的基地址寄存器（ebp）压入堆栈，然后在函数的运行过程中会将当前的 esp 值复制到 ebp 中。 如果程序中的所有函数都遵循这一约定，那么在程序执行期间的任何给定点，可以通过遵循保存的 ebp 指针链来精确地还原出整个 ebp 的保存链，并用于确定出整个函数的调用序列。这种特性特别有用，例如，因为传递错误的参数，一个特定的函数导致 assert 失败或 panic，但你不确定谁传递了错误的参数。 栈回溯可以让你找到有问题的函数。</p>
-  <section type="exercise">
-    <p><strong>练习 10.</strong><br>
-      熟悉 x86 上 C 语言函数的调用约定，在 <code>obj/kern/kernel.asm</code> 中找到 <code>test_backtrace</code> 函数的地址，在其中设置一个断点，并检查在内核启动后每次这个函数被调用时会发生什么。 每一级的 <code>test_backtrace</code> 在递归调用时，会在栈上压入多少个 32 位的字，这些字的内容是什么？</p>
-    <p>请注意，为了使此练习正常工作，你应该使用工具页中修改过QEMU。 否则，你必须手动将所有断点和内存地址转换为线性地址。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 10.</strong><p>熟悉 x86 上 C 语言函数的调用约定，在 <code>obj/kern/kernel.asm</code> 中找到 <code>test_backtrace</code> 函数的地址，在其中设置一个断点，并检查在内核启动后每次这个函数被调用时会发生什么。 每一级的 <code>test_backtrace</code> 在递归调用时，会在栈上压入多少个 32 位的字，这些字的内容是什么？</p>
+    <p>请注意，为了使此练习正常工作，你应该使用工具页中修改过QEMU。 否则，你必须手动将所有断点和内存地址转换为线性地址。</p></section>
   <p>上述练习应该能够提供实现栈回溯函数所需的信息，我们将它命名为 <code>mon_backtrace()</code>。 这个函数的原型已经在 <code>kern/monitor.c</code> 中定义好了。你可以完全在 C 语言中读取 ebp，但你也可以用 <code>inc/x86.h</code> 中的 <code>read_ebp()</code> 函数。 你还必须将这个新功能添加到内核监视器的命令列表中，以便用户可以通过命令交互式地调用它。</p>
   <p>回溯功能应显示以下格式的功能调用列表：</p>
   <pre class=" language-backtrace"><code class="prism  language-backtrace">Stack backtrace:
@@ -289,16 +252,11 @@ K&gt;
     <li><code>&amp;p[i]</code> 与 <code>(*p + i)</code> 相同，是 <code>p</code> 指向的存储器中的第 <code>i</code> 个对象的地址。</li>
   </ul>
   <p>虽然大多数 C 程序不需要在指针和整数之间进行转换，但操作系统经常这么做。 每当你看到一个内存地址的加法操作时，需要想清楚是一个整数加法还是一个指针加法，并确保要相加的值是不是要乘以每个对象的大小。</p>
-  <section type="exercise">
-    <p><strong>练习 11.</strong><br>
-      实现如上所述的回溯功能。请使用与示例中相同的格式，否则打分脚本将会出错。当你认为你的工作正确的时候，运行 <code>make grade</code> 来看看它的输出是否符合我们的打分脚本的期待，如果没有，修正发现的错误。在你成功提交实验 1 的作业后，欢迎你以任何你喜欢的方式更改回溯功能的输出格式。</p>
-    <p>如果你使用 <code>read_ebp()</code>，请注意，GCC 可能会生成优化后的代码，导致在 <code>mon_backtrace()</code> 的函数前导代码之前调用 <code>read_ebp()</code>，从而导致堆栈跟踪不完整（最近的函数调用的堆栈帧丢失）。<s>我们可以尝试禁用优化以避免此重新排序的优化模式</s> 如果你遇到了这个问题，不需要解决它，只要能够解释它即可。你可能需要检查 <code>mon_backtrace()</code> 的汇编代码，并确保在函数前导代码之后调用的 <code>read_ebp()</code>。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 11.</strong><p>实现如上所述的回溯功能。请使用与示例中相同的格式，否则打分脚本将会出错。当你认为你的工作正确的时候，运行 <code>make grade</code> 来看看它的输出是否符合我们的打分脚本的期待，如果没有，修正发现的错误。在你成功提交实验 1 的作业后，欢迎你以任何你喜欢的方式更改回溯功能的输出格式。</p>
+    <p>如果你使用 <code>read_ebp()</code>，请注意，GCC 可能会生成优化后的代码，导致在 <code>mon_backtrace()</code> 的函数前导代码之前调用 <code>read_ebp()</code>，从而导致堆栈跟踪不完整（最近的函数调用的堆栈帧丢失）。<s>我们可以尝试禁用优化以避免此重新排序的优化模式</s> 如果你遇到了这个问题，不需要解决它，只要能够解释它即可。你可能需要检查 <code>mon_backtrace()</code> 的汇编代码，并确保在函数前导代码之后调用的 <code>read_ebp()</code>。</p></section>
   <p>此时，你的 <code>backtrace</code> 函数应该为你提供调用 <code>mon_backtrace()</code> 的函数在栈上的地址。但是，在实践中，你经常想知道与这些地址对应的函数名称。 例如，你可能想知道哪些函数可能包含导致内核崩溃的错误。</p>
   <p>为了帮助你实现此功能，我们提供了函数 <code>debuginfo_eip()</code>，该函数能够在符号表中查找 <code>eip</code> 并返回该地址的调试信息。这个函数在 <code>kern/kdebug.c</code> 中定义。</p>
-  <section type="exercise">
-    <p><strong>练习 12.</strong><br>
-      修改你的堆栈回溯功能，为每个 <code>eip</code> 显示与该 <code>eip</code> 对应的函数名称，源文件名和行号。</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 12.</strong><p>修改你的堆栈回溯功能，为每个 <code>eip</code> 显示与该 <code>eip</code> 对应的函数名称，源文件名和行号。</p>
     <p>在 <code>debuginfo_eip</code> 中 <code>__STAB_ *</code> 来自哪里？这个问题的答案可能很长。为了帮助你找到答案，以下是你可能想要做的一些事情：</p>
     <ul>
       <li>在文件 <code>kern/kernel.ld</code> 中查找 <code>__STAB_*</code></li>
@@ -322,8 +280,7 @@ K&gt;
     <p>每一行给出栈帧的 <code>eip</code>，以及这个代码所在的文件的文件名和行，后面是函数的名称和 <code>eip</code> 与函数的第一条指令的偏移（例如，<code>monitor+106</code> 表示返回 <code>eip</code> 是从 <code>monitor</code> 函数开始的第 106 字节）。</p>
     <p>确保在单独的行上打印文件和函数名称，以避免让打分脚本感到困惑。</p>
     <p>提示：<code>printf</code> 格式的字符串提供了一种简单的方法来打印非空终止的字符串，如 <code>STABS</code> 表中的字符串。 <code>printf("％.* s"，length，string）</code>打印长度最长为 <code>length</code> 的字符串。 看看 <code>printf</code> 手册页，找出这一段的工作原理和使用方法。</p>
-    <p>你可能会发现回溯中少了一些函数。 例如，你可能会看到对 <code>monitor()</code> 的调用，但不会看到对 <code>runcmd()</code> 的调用。 这是因为编译器内联一些函数调用。 其他优化可能会导致你看到的行号和代码中的不太一样。 如果你从 <code>GNUMakefile</code> 中删除 <code>-O2</code> ，那么回溯可能会更容易理解一些（但内核运行速度会更慢）。</p>
-  </section>
+    <p>你可能会发现回溯中少了一些函数。 例如，你可能会看到对 <code>monitor()</code> 的调用，但不会看到对 <code>runcmd()</code> 的调用。 这是因为编译器内联一些函数调用。 其他优化可能会导致你看到的行号和代码中的不太一样。 如果你从 <code>GNUMakefile</code> 中删除 <code>-O2</code> ，那么回溯可能会更容易理解一些（但内核运行速度会更慢）。</p></section>
   <p>到了这里，Lab 1 就结束了。在实验目录中，使用 <code>git commit &lt;?后面是什么&gt;</code> 来提交你的更改。</p>
   <hr>
   <p>译： Unknown</p>
@@ -334,6 +291,9 @@ K&gt;
   <p>编译脚本：</p>
   <pre class=" language-javascript"><code class="prism  language-javascript">Handlebars<span class="token punctuation">.</span><span class="token function">registerHelper</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>options<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token keyword">var</span> result <span class="token operator">=</span> options<span class="token punctuation">.</span><span class="token function">fn</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> regex <span class="token operator">=</span> <span class="token operator">/</span><span class="token punctuation">(</span><span class="token operator">&lt;</span>p<span class="token operator">&gt;</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token punctuation">:</span> <span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">[</span>\w<span class="token punctuation">]</span><span class="token operator">+</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token operator">^</span><span class="token operator">&lt;</span>\n<span class="token punctuation">]</span><span class="token operator">+</span><span class="token operator">?</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token operator">&lt;</span>\<span class="token operator">/</span>p<span class="token operator">&gt;</span>\n<span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token operator">+</span><span class="token operator">?</span><span class="token punctuation">)</span><span class="token punctuation">(</span>\n<span class="token operator">&lt;</span>p<span class="token operator">&gt;</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token operator">&lt;</span>\<span class="token operator">/</span>p<span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="token operator">/</span>gms<span class="token punctuation">;</span>
+  <span class="token keyword">var</span> replace <span class="token operator">=</span> <span class="token string">'&lt;section class="custom-block $2" type="$2"&gt;&lt;strong&gt;$3&lt;/strong&gt;$5&lt;/section&gt;'</span><span class="token punctuation">;</span>
+  result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span>regex<span class="token punctuation">,</span> replace<span class="token punctuation">)</span>
   result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—section (.+?)—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;section type="$1"&gt;'</span><span class="token punctuation">)</span>
   result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—end section—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;/section&gt;'</span><span class="token punctuation">)</span>
   <span class="token keyword">return</span> result<span class="token punctuation">;</span>

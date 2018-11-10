@@ -102,17 +102,11 @@ export default {
   <p>我们操作系统的文件系统进程需要能够访问磁盘，但是我们还没在内核中实现任何磁盘访问功能。操作系统惯例的策略是为内核添加一个 IDE 磁盘驱动程序和必要的系统调用来允许文件系统读写磁盘，但我们不是这样做，而是在用户模式下通过文件系统进程来实现 IDE 磁盘驱动程序。不过我们还是需要稍微修改一下内核，为我们的文件系统进程提供它自己存取磁盘所必要的权限。</p>
   <p>通过这种方式在用户空间实现磁盘读写比较简单，只要我们不用磁盘中断而是用基于<a href="https://wiki.osdev.org/ATA_PIO_Mode#Polling_the_Status_vs._IRQs">轮询</a> 的 <a href="https://en.wikipedia.org/wiki/Programmed_input/output">程控I/O</a> 的磁盘访问就可以了。当然，在用户模式下实现中断驱动的设备驱动程序也是有可能的，比如，L3 和 L4 内核就是这么做的，但是这样内核就必须响应设备中断并将其分发给正确的用户模式进程，相比来说要更难实现一些。</p>
   <p>x86 处理器使用 EFLAGS 寄存器的 IOPL 位来决定保护模式下的代码是否能够进行像 IN 和 OUT 这样的特殊的设备 I/O 指令。因为我们需要访问的所有 IDE 磁盘寄存器都在 x86 的 I/O 空间，而没有被映射在内存地址中间中，为了允许文件系统进程访问这些寄存器，我们只需要给它 I/O 特权就好了。事实上，EFLAGS 寄存器的 IOPL 位为内核提供了一个 “all or nothing / 要么没有，要么全部” 的来控方式制用户模式的代码是否能访问 I/O 空间。在我们这个例子中，我们希望文件系统进程能够访问 I/O 空间，但我们不希望其他任何进程能够访问 I/O 空间。</p>
-  <section type="exercise">
-    <p><strong>练习 1.</strong><br>
-      <code>i386_init</code> 通过为进程创建函数，<code>env_create</code>， 传递 <code>ENV_TYPE_FS</code> 类型来标记这个进程是文件系统进程。修改 <code>env.c</code> 的 <code>env_create</code> 函数，使它给予文件系统进程 I/O 特权，而不要给其他任何进程文件系统特权。</p>
-    <p>确信你能够不触发一般保护错(General Protection Fault)的情况下启动文件进程。现在，你应该能够在 <code>make grade</code> 中通过 <code>fs i/o</code> 这一项了。</p>
-  </section>
-  <section type="question">
-    <p><strong>问题</strong></p>
-    <ul>
-      <li>除此之外，你还需要做其他别的事情来确保在切换进程的时候这个 I/O 特权设置能够被正确地保留下来吗？为什么？</li>
-    </ul>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 1.</strong><p><code>i386_init</code> 通过为进程创建函数，<code>env_create</code>， 传递 <code>ENV_TYPE_FS</code> 类型来标记这个进程是文件系统进程。修改 <code>env.c</code> 的 <code>env_create</code> 函数，使它给予文件系统进程 I/O 特权，而不要给其他任何进程文件系统特权。</p>
+    <p>确信你能够不触发一般保护错(General Protection Fault)的情况下启动文件进程。现在，你应该能够在 <code>make grade</code> 中通过 <code>fs i/o</code> 这一项了。</p></section>
+  <section class="custom-block question" type="question"><strong>问题</strong><ul>
+    <li>除此之外，你还需要做其他别的事情来确保在切换进程的时候这个 I/O 特权设置能够被正确地保留下来吗？为什么？</li>
+  </ul></section>
   <p>注意，本次实验的 <code>GNUmakefile</code> 会配置 QEMU 和以前一样使用 <code>obj/kern/kernel.img</code> 作为磁盘 0 的映像，并使用新的 obj/fs/fs.img 作为磁盘 1 的映像。对于 DOS/Windows，通常分别对应于 C: 和 D:。在本次实验中，我们的文件系统应该只需要对磁盘 1 进行操作，而磁盘 0 只用于启动内核。如果你不小心破坏了磁盘映像，你可以用下面的指令来把它们还原到最开始的状态：</p>
   <pre class=" language-bash"><code class="prism  language-bash"><span class="token function">rm</span> obj/kern/kernel.img obj/fs/fs.img
 <span class="token function">make</span>
@@ -121,45 +115,27 @@ export default {
   <pre class=" language-bash"><code class="prism  language-bash"><span class="token function">make</span> clean
 <span class="token function">make</span>
 </code></pre>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      实现一个中断驱动的 IDE 磁盘存取，使用或者不使用 DMA 均可。你可以决定是把磁盘驱动程序移至内核，还是继续把它和文件系统一起留在用户空间，甚至，如果你真的很想实现微内核之类的，也可以试试把它移至自己独有的环境中。</p>
-  </section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>实现一个中断驱动的 IDE 磁盘存取，使用或者不使用 DMA 均可。你可以决定是把磁盘驱动程序移至内核，还是继续把它和文件系统一起留在用户空间，甚至，如果你真的很想实现微内核之类的，也可以试试把它移至自己独有的环境中。</p></section>
   <h3 id="块缓存">块缓存</h3>
   <p>在我们的文件系统中，我们会在处理器的虚拟内存系统的帮助下，实现一个简单的”缓冲区缓存“（真的就是简单的块缓存）。实现块缓存的代码在 <code>fs/bc.c</code> 中。</p>
   <p>我们的文件系统仅限于处理 3GB 以下的磁盘。我们在文件系统进程的地址空间预留一个大小 3GB 的，固定的空间，从 0x10000000 (<code>DISKMAP</code>) 直到 0xD0000000(<code>DISKMAP+DISKMAX</code>) 作为"映射到内存中的"磁盘。例如，磁盘的第 0 块被映射在虚拟地址的 0x10000000，第 1 块映射在虚拟地址的 0x10001000 等等。<code>fs/bc.c</code> 中的 <code>diskaddr</code> 函数实现了将磁盘块号转换为虚拟地址并进行一些有效性检查的方式。</p>
   <p>因为我们的文件系统进程有着和系统中运行的其他进程完全不同的虚拟地址空间，而且它需要做的事只是实现文件存取，所以像这样保留其绝大部分地址空间用于块缓存也是合理的。在真正的文件系统实现中，如果是 32 位机器也这样做就会有些尴尬，因为现代的磁盘都远远大于 3GB。不过对于拥有 64 位地址空间的机器来讲，这样也许还是一种合理的缓冲区缓存管理的方法。</p>
   <p>当然，如果把整个磁盘都读入内存就不太合理了。所以我们会实现某种形式的 <code>demand paging</code>，在这种情况下，我们只需要当在这个区域发生缺页时将相应的块从磁盘读入并映射到这个区域中。这样的话，我们可以假设整个磁盘都在内存中。</p>
-  <section type="exercise">
-    <p><strong>练习 2.</strong><br>
-      实现在 <code>fs/bc.c</code> 的 <code>bc_pgfault</code> 和 <code>flush_block</code> 方法。<code>bc_pgfault</code> 是一个缺页处理函数，就像是在上次实验中，你所写的 copy-on-write 的 fork 一样，除了它的工作是在缺页时从磁盘中将页读入内存。当完成这一部分时，不要忘了：1. <code>addr</code> 可能并没有和块边界对齐，2.  <code>ide_read</code> 方法操作的是扇区，而不是块。</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 2.</strong><p>实现在 <code>fs/bc.c</code> 的 <code>bc_pgfault</code> 和 <code>flush_block</code> 方法。<code>bc_pgfault</code> 是一个缺页处理函数，就像是在上次实验中，你所写的 copy-on-write 的 fork 一样，除了它的工作是在缺页时从磁盘中将页读入内存。当完成这一部分时，不要忘了：1. <code>addr</code> 可能并没有和块边界对齐，2.  <code>ide_read</code> 方法操作的是扇区，而不是块。</p>
     <p><code>flush_block</code> 方法应该 <em>在必要时</em> 将块写回磁盘。如果一个块甚至都不在块缓存中（它根本没被映射），或者它还不是脏的，<code>flush_block</code> 应该什么都不做才对。我们会用 VM 硬件来追踪一个磁盘块在上次被读入或写回后有没有修改过。想知道它是否需要写回，我们只需要检查一下 <code>uvpt</code> 入口点的 <code>PTE_D</code> 脏位的值是不是被设置了（<code>PTE_D</code> 位是由处理器在写入某一页时设置的；可以看看 386 参考手册的<a href="http://pdos.csail.mit.edu/6.828/2011/readings/i386/s05_02.htm">第五章</a>的 5.2.4.3）。将块写回磁盘后，<code>flush_block</code> 方法应该用 <code>sys_page_map</code> 来清除 <code>PTE_D</code> 位。</p>
-    <p>此时的 <code>make grade</code> 应该能够通过 <code>check_bc</code>，<code>check_super</code> 和 <code>check_bitmap</code> 了。</p>
-  </section>
+    <p>此时的 <code>make grade</code> 应该能够通过 <code>check_bc</code>，<code>check_super</code> 和 <code>check_bitmap</code> 了。</p></section>
   <p>在 <code>fs/fs.c</code> 中的 <code>fs_init</code> 函数是如何利用块缓存的最好的例子。初始化好块缓存之后，它会将磁盘映射区域的指针存储在 <code>super</code> 这个全局变量中。之后，我们只需要简单地从 <code>super</code> 结构体中读取就可以了，就好像它们在内存中一样。必要的话，我们的缺页处理函数会把它们读入磁盘。</p>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      块缓存没有驱逐政策。一旦一个块在块缓存中出错，它将永远不会被从内存中移除。为缓冲区缓存添加一个驱逐策略。硬件每当访问一个页的时候，就会设置它页表入口的 <code>PTE_A</code> 位，因此不需要修改每一处访问磁盘的代码就可以大致追踪磁盘块的使用情况。注意留意对脏块的处理。</p>
-  </section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>块缓存没有驱逐政策。一旦一个块在块缓存中出错，它将永远不会被从内存中移除。为缓冲区缓存添加一个驱逐策略。硬件每当访问一个页的时候，就会设置它页表入口的 <code>PTE_A</code> 位，因此不需要修改每一处访问磁盘的代码就可以大致追踪磁盘块的使用情况。注意留意对脏块的处理。</p></section>
   <h3 id="块位图">块位图</h3>
   <p>在 <code>fs_init</code> 设置好 <code>bitmap</code> 指针之后，我们可以把 <code>bitmat</code> 视为打包起来的位的数组，每一位都代表磁盘上的一个块。比如，看一下 <code>block_is_free</code>，这个函数简单地检查给定的块在位图中是否被标记为空闲。</p>
-  <section type="exercise">
-    <p><strong>练习 3.</strong><br>
-      将 <code>free_block</code> 作为模型，实现 <code>alloc_block</code> 方法。这个方法应该在位图中找到一个空闲的磁盘块，将其标记为占用，并返回块的块号。When you allocate a block, you should immediately flush the changed bitmap block to disk with flush_block, to help file system consistency. / 每当你分配一个块时，你应该立即用 <code>flush_block</code> 将改变的位图块刷回磁盘，以保证文件系统的连续性。</p>
-    <p>此时，用 <code>make grade</code> 的话，你的代码应该能够通过 <code>alloc_block</code> 了。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 3.</strong><p>将 <code>free_block</code> 作为模型，实现 <code>alloc_block</code> 方法。这个方法应该在位图中找到一个空闲的磁盘块，将其标记为占用，并返回块的块号。When you allocate a block, you should immediately flush the changed bitmap block to disk with flush_block, to help file system consistency. / 每当你分配一个块时，你应该立即用 <code>flush_block</code> 将改变的位图块刷回磁盘，以保证文件系统的连续性。</p>
+    <p>此时，用 <code>make grade</code> 的话，你的代码应该能够通过 <code>alloc_block</code> 了。</p></section>
   <h3 id="文件操作">文件操作</h3>
   <p>我们在 <code>fs/fs.c</code> 中提供了一些你可能会需要的基本功能，比如解析和操作 <code>File</code> 结构体、扫描目录或操作目录文件的入口、从根开始遍历文件系统来得到文件绝对路径等。仔细读一读 <code>fs/fs.c</code> 的 <em>全部</em> 代码，确保你在继续之前已经理解了这些函数都做了什么。</p>
-  <section type="exercise">
-    <p><strong>练习 4.</strong><br>
-      实现 <code>file_block_walk</code> 和 <code>file_get_block</code>。<code>file_block_walk</code> 将文件内部的块偏移量对应于 <code>struct File</code> 中的相应的块或者间接块，非常像是 <code>pgdir_walk</code> 这个函数对页表做的那样。<code>file_get_block</code> 更进一步，将其对应于实际的磁盘块，如果有必要就分配个新的。</p>
-    <p>用 <code>make grade</code> 来测试一下你的代码，如果一切正常，应该能够通过 <code>file_open</code>, <code>file_get_block</code>, <code>file_flush/file_truncated/file rewrite</code> 和 <code>testfile</code> 这些测试了。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 4.</strong><p>实现 <code>file_block_walk</code> 和 <code>file_get_block</code>。<code>file_block_walk</code> 将文件内部的块偏移量对应于 <code>struct File</code> 中的相应的块或者间接块，非常像是 <code>pgdir_walk</code> 这个函数对页表做的那样。<code>file_get_block</code> 更进一步，将其对应于实际的磁盘块，如果有必要就分配个新的。</p>
+    <p>用 <code>make grade</code> 来测试一下你的代码，如果一切正常，应该能够通过 <code>file_open</code>, <code>file_get_block</code>, <code>file_flush/file_truncated/file rewrite</code> 和 <code>testfile</code> 这些测试了。</p></section>
   <p>file_block_walk and file_get_block are the workhorses of the file system. For example, file_read and file_write are little more than the bookkeeping atop file_get_block necessary to copy bytes between scattered blocks and a sequential buffer. / <code>file_block_walk</code> 和 <code>file_get_block</code> 是文件系统中可以依赖做重复工作的“工作马”(workhorse)，比如，<code>file_read</code> 和 <code>file_write</code>，在记账式的 <code>file_get_block</code> 的基础上，再进行稀疏块和连续缓冲区之间的数据拷贝就完全没必要了。</p>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      如果在操作中途被打断（比如，崩溃或者重启）的话，文件系统很可能会损坏。实现一些软更新或者日志机制，来使得文件系统能不受崩溃的影响。描述某个情景，在这种情况下旧的文件系统会损坏，而你的文件系统不会。</p>
-  </section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>如果在操作中途被打断（比如，崩溃或者重启）的话，文件系统很可能会损坏。实现一些软更新或者日志机制，来使得文件系统能不受崩溃的影响。描述某个情景，在这种情况下旧的文件系统会损坏，而你的文件系统不会。</p></section>
   <h3 id="文件系统接口">文件系统接口</h3>
   <p>现在，文件系统进程必须的功能我们都已经实现了。我们还需要让其他想要使用文件系统的进程能够和文件系统进程通信。因为其他进程不能直接调用文件系统进程的函数，我们需要通过 RPC (远程过程调用, Remote procedure call) 暴露出访问文件系统进程的抽象方法。这是建立在 JOS 的进程间通信(IPC)机制上的。以读文件为例，调用文件系统服务的过程直观上看起来是这样的：</p>
   <p><img src="./lab5_3.png" alt="图3"></p>
@@ -167,53 +143,32 @@ export default {
   <p>文件系统服务端代码可以在 <code>fs/serv.c</code> 中被找到。它在 <code>serve</code> 函数中循环，无止境地尝试通过 IPC 接受请求，将请求分发给正确的处理函数，并将结果通过 IPC 发回去。在读取这个例子中，<code>serve</code> 会分发给 <code>serve_read</code>，它将会处理读请求的 IPC 具体细节，比如解包请求结构体，并最终调用 <code>file_read</code> 来真正进行文件的读操作。</p>
   <p>回忆 JOS 的 IPC 机制，它允许进程发送一个 32 位的数字，并且也可选共享一个页。从客户端发给服务器的请求中，我们用这个 32 位的数字表示请求类型（文件系统服务的 RPC 也是有类型的，就像系统调用也是有类型的）并将参数放在随请求共享的页中的 <code>union Fsipc</code> 结构体中。在客户端一侧，我们总是共享 <code>fsipcbuf</code> 这个位置的页；在服务器一侧，我们总是把请求页映射到 <code>fsreq</code> 的位置（<code>0x0ffff000</code>）。</p>
   <p>服务器也会将响应通过 IPC 发回去。我们用 32 位的数字来表示函数的返回值。对于大多数 RPC，这已经是响应的全部了。对于 <code>FSREQ_READ</code> 和 <code>FSREQ_STAT</code> 来说，它们虽然会返回数据，就直接写在客户端请求的那个页上就好了，没必要在响应的时候再带一个页，因为客户端请求的时候已经发送一个页给文件系统服务器了。Also, in its response, FSREQ_OPEN shares with the client a new “Fd page”. We’ll return to the file descriptor page shortly. / 而 <code>FSREQ_OPEN</code> 会在它的响应中分享给客户端一个新的"文件描述符页"。我们一会儿再介绍这个文件描述符页。</p>
-  <section type="exercise">
-    <p><strong>练习 5.</strong><br>
-      实现 <code>fs/serv.c</code> 的 <code>serve_read</code></p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 5.</strong><p>实现 <code>fs/serv.c</code> 的 <code>serve_read</code></p>
     <p><code>serve_read</code> 几乎就是通过调用已经实现好了的 <code>fs/fs.c</code> 中的 <code>file_read</code> 来实现的（而，<code>file_read</code> 也就是一系列对 <code>file_get_block</code> 的调用）。<code>serve_read</code> 只需要提供用于读文件的 RPC 接口就好了。看看这些注释和 <code>serve_set_size</code> 中的代码来了解一下服务端代码的结构是怎样的。</p>
-    <p>此时用 <code>make grade</code> 应该能够通过 <code>serve_open/file_stat/file_close</code> 和 <code>file_read</code> 了。这时的得分应该是 65/145。</p>
-  </section>
-  <section type="exercise">
-    <p><strong>练习 6.</strong><br>
-      实现 <code>fs/serv.c</code> 中的 <code>serve_write</code> 和 <code>lib/file.c</code> 中的 <code>devfile_write</code>。</p>
-    <p>此时用 <code>make grade</code> 应该能够通过 <code>file_write</code>、 <code>file_read after file_write</code>，<code>open</code> 和 <code>large file</code> 了。这时的得分应该是 85/145。</p>
-  </section>
+    <p>此时用 <code>make grade</code> 应该能够通过 <code>serve_open/file_stat/file_close</code> 和 <code>file_read</code> 了。这时的得分应该是 65/145。</p></section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 6.</strong><p>实现 <code>fs/serv.c</code> 中的 <code>serve_write</code> 和 <code>lib/file.c</code> 中的 <code>devfile_write</code>。</p>
+    <p>此时用 <code>make grade</code> 应该能够通过 <code>file_write</code>、 <code>file_read after file_write</code>，<code>open</code> 和 <code>large file</code> 了。这时的得分应该是 85/145。</p></section>
   <h2 id="spawning-processes">Spawning Processes</h2>
   <p>我们已经在 <code>lib/spawn.c</code> 中为你提供了创建新进程的 <code>spawn</code> 方法，它将一个程序映像从文件系统中读入，并启动一个子进程来运行它。父进程接下来将会独立于子进程继续运行。<code>spawn</code> 方法就像是在 UNIX 调用完 <code>fork</code> 之后立即在子进程中调用 <code>exec</code>。</p>
   <p>我们实现 <code>spawn</code> 而不是 UNIX 那样的 <code>exec</code> 是因为 <code>spawn</code> 在用户空间以"外内核方式(exokernel fashion)"实现起来要更简单些，不需要内核的特别协助。想一想如果你需要在用户空间实现 <code>exec</code> 需要做些什么，确保你清楚为什么在用户空间实现起来会更难一些。</p>
-  <section type="exercise">
-    <p><strong>练习 7.</strong><br>
-      <code>spawn</code> 依赖新的系统调用 <code>sye_env_set_trapframe</code> 来初始化新创建的进程的状态。在 <code>kernel/syscall.c</code> 中实现 <code>sys_env_set_trapframe</code> （不要忘了在 <code>syscall()</code> 中分发这个新的系统调用！）</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 7.</strong><p><code>spawn</code> 依赖新的系统调用 <code>sye_env_set_trapframe</code> 来初始化新创建的进程的状态。在 <code>kernel/syscall.c</code> 中实现 <code>sys_env_set_trapframe</code> （不要忘了在 <code>syscall()</code> 中分发这个新的系统调用！）</p>
     <p>试试看，调整 <code>kern/init.c</code> 让它启动 <code>user/spawnhello</code> 这个程序，它将会试图从文件系统启动 <code>/hello</code>。</p>
-    <p>用 <code>make grade</code> 测试一下你的代码。</p>
-  </section>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      实现 Unix 样式的 <code>exec</code>。</p>
-  </section>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      实现 <code>mmap-</code>样式的内存映射的文件，并修改 <code>spawn</code>，使其如果可能，就从 ELF 映像直接映射页。</p>
-  </section>
+    <p>用 <code>make grade</code> 测试一下你的代码。</p></section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>实现 Unix 样式的 <code>exec</code>。</p></section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>实现 <code>mmap-</code>样式的内存映射的文件，并修改 <code>spawn</code>，使其如果可能，就从 ELF 映像直接映射页。</p></section>
   <h3 id="在-fork-和-spawn-中共享库状态">在 fork 和 spawn 中共享库状态</h3>
   <p>UNIX 文件描述符是个非常广泛的概念，比如，也包括 管道，控制台输入输出，等等。在 JOS 中，每一个这样的设备类型都有一个相应的 <code>struct Dev</code> 结构体，结构体中存着相应的函数指针来实现对应设备类型相应的读写等操作。建立在其上的 <code>lib/fd.c</code> 实现了 UNIX 样式的文件描述符接口。每一个 <code>struct Fd</code> 包含着它对应的设备类型，<code>lib/fd.c</code> 中的大多数函数只是把相应的操作分发给对应的 <code>struct Dev</code> 中的处理函数。</p>
   <p><code>lib/fd.c</code> 也在每一个进程的地址空间维护一个 <em>文件描述符表</em> 区域，从 <code>FSTABLE</code> 开始。这个区域为每一个文件描述符预留大小为 1 页（4KB）的地址空间，最多可以保留 <code>MAXFD</code>（目前来说，最多 32 个）个同时打开的文件。在任何特定的时间点，一个特定的文件描述符表页当且仅当在它正在被使用时才会被映射。每一个文件描述符在这个区域也有一个可选的"数据页"，开始于 <code>FILEDATA</code> 这个位置，如果设备想用的话就可以使用。</p>
   <p>我们希望在 <code>fork</code> 和 <code>spawn</code> 之间共享文件描述符的状态。但是文件描述符状态是在用户内存空间中的。目前，当 <code>fork</code> 时，内存会被标记为 copy-on-write，所以这个状态不是被共享了，而是被复制了。这意味着，进程如果没有亲自打开这个文件的话，是不能读取这个文件的，而且管道机制在 fork 中也不会工作。当 <code>spawn</code> 时，内存完全不会被复制或者共享（或者说，通过 spawn 产生的进程开始的时候没有任何打开的文件描述符）。</p>
   <p>我们会调整 <code>fork</code>，让它知道内存中有些特定的区域是被这个库系统所使用的，所以总是被共享。不过我们也不会在某个地方写死一个会被库利用的内存区域列表，而是像 <code>PTE_COW</code> 一样，用页表中一个没有被使用的位来做标记。</p>
   <p>我们在 <code>inc/lib.h</code> 定义了一个新的 <code>PTE_SHARE</code> 位。这一位是 Intel 和 AMD 手册上说的，提供给软件使用的 3 个 PTE 位之一。我们会建立一个规矩，如果页表入口的这一位被设置了，那么无论是 <code>fork</code> 还是 <code>spawn</code>，这个页表入口就应该直接从父进程复制到子进程中。注意，这个和 copy-on-write 是不同的，因为我们需要确保对这一页的修改是 <em>共享</em> 的。</p>
-  <section type="exercise">
-    <p><strong>练习 8.</strong><br>
-      修改 <code>lib/fork.c</code> 的 <code>duppage</code> 来遵照这个新的规矩。如果页表入口的 <code>PTE_SHARE</code> 这一位被设置了，应该直接拷贝这个映射。你应该用 <code>PTE_SYSCALL</code> 而不是 <code>0xffff</code> 来遮盖掉页表入口中相关的位， 因为 <code>0xffff</code> 会同时遮盖掉访问位和脏位。</p>
-    <p>与此类似，实现 <code>lib/spawn.c</code> 中的 <code>copy_shared_pages</code>。它应该循环查找当前进程的整个页表入口（就像 <code>fork</code> 做的那样，把所有有着 <code>PTE_SHARE</code> 标记的页直接复制给子进程。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 8.</strong><p>修改 <code>lib/fork.c</code> 的 <code>duppage</code> 来遵照这个新的规矩。如果页表入口的 <code>PTE_SHARE</code> 这一位被设置了，应该直接拷贝这个映射。你应该用 <code>PTE_SYSCALL</code> 而不是 <code>0xffff</code> 来遮盖掉页表入口中相关的位， 因为 <code>0xffff</code> 会同时遮盖掉访问位和脏位。</p>
+    <p>与此类似，实现 <code>lib/spawn.c</code> 中的 <code>copy_shared_pages</code>。它应该循环查找当前进程的整个页表入口（就像 <code>fork</code> 做的那样，把所有有着 <code>PTE_SHARE</code> 标记的页直接复制给子进程。</p></section>
   <p>运行 <code>make run-testpteshare</code> 来检查你的代码是不是正确运行了。你应该能看见类似 <code>fork handles PTE_SHARE right</code> 和 <code>spawn handles PTE_SHARE right</code> 这样的提示。</p>
   <p>运行 <code>make run-testfdsharing</code> 来检查文件描述符是否被正确地分享了。你应该能看到 <code>read in child succeeded</code> 和 <code>read in parent succeeded</code> 这样的提示。</p>
   <h2 id="the-keyboard-interface--键盘接口">The keyboard interface / 键盘接口</h2>
   <p>为了让 shell 能够工作，我们需要找到一种在其中输入的方式。QEMU 会把输出显示到 CGA 显示器并送入输出串口，但是到目前为止，我们只能在内核监视器中输入数据。在 QEMU 中，在图形窗口中输入就是从键盘中输入到 JOS，而在控制台输入就是通过输入串口送入数据。 <code>kern/console.c</code> 已经包含了键盘和串口驱动程序，我们从 lab 1 开始内核监视器就在用它，但是现在，你需要把这些接到系统余下的各个部分。</p>
-  <section type="exercise">
-    <p><strong>练习 9.</strong><br>
-      在 <code>kern/trap.c</code> 中，调用 <code>kbd_intr</code> 来处理 <code>IRQ_OFFSET + IRQ_KBD</code>  这个陷阱。调用 <code>serial_intr</code> 来处理 <code>IRQ_OFFSET + IRQ_SERIAL</code> 这个陷阱。</p>
-  </section>
+  <section class="custom-block exercise" type="exercise"><strong>练习 9.</strong><p>在 <code>kern/trap.c</code> 中，调用 <code>kbd_intr</code> 来处理 <code>IRQ_OFFSET + IRQ_KBD</code>  这个陷阱。调用 <code>serial_intr</code> 来处理 <code>IRQ_OFFSET + IRQ_SERIAL</code> 这个陷阱。</p></section>
   <p>我们已经在 <code>lib/console.c</code> 中为你实现了控制台输入输出文件类型。 <code>kbd_intr</code> 和 <code>serial_intr</code> 会用最近读入的字符填充一个缓冲区，而控制台文件类型会从这个缓冲区中取出字符。默认情况下，控制台文件类型即作为标准输入输出，除非用户重定向了它们。</p>
   <p>运行 <code>make run-testkbd</code> 并且打几行字。当你按下回车后，系统应该回显你打进去的内容。如果你能运行图形窗口的话，在控制台和在图形窗口中都试试看。（注：如果用于虚拟化 QEMU 的客户机没有 VGA 设备，比如 WSL，即，用 <code>make run-*-nox</code> 才能启动的话，就没有图形窗口。）</p>
   <h2 id="the-shell">The Shell</h2>
@@ -225,15 +180,10 @@ export default {
 lsfd
 </code></pre>
   <p>注意，用户库例程 <code>cprintf</code> 直接向控制台打印，而不使用文件描述符代码。这对于调试来说很棒，但是如果通过管道送给其他程序的话就很麻烦。想要打印输出到某个特定的文件描述符，比如 1，标准输出，可以用 <code>fprintf(1, "...", ...)</code>。<code>printf("...", ...)</code> 是输出到 1 号文件描述符的捷径。你可以在 <code>user/lsfd.c</code> 中找到例子。</p>
-  <section type="exercise">
-    <p><strong>练习 10.</strong><br>
-      shell 还不能支持 I/O 重定向。如果能够运行 <code>sh &lt;script</code> 这样的代码，而不是直接把脚本中的各种命令打进去就好了。现在，为 <code>user/sh.c</code> 添加一个 I/O 重定向运算符 <code>&lt;</code>。</p>
+  <section class="custom-block exercise" type="exercise"><strong>练习 10.</strong><p>shell 还不能支持 I/O 重定向。如果能够运行 <code>sh &lt;script</code> 这样的代码，而不是直接把脚本中的各种命令打进去就好了。现在，为 <code>user/sh.c</code> 添加一个 I/O 重定向运算符 <code>&lt;</code>。</p>
     <p>如果实现好了，用 <code>sh &lt;script</code> 来试试看。</p>
-    <p>运行 <code>make run-testshell</code> 来测试一下你的 shell。<code>testshell</code> 就是把 <code>fs/testshell.sh</code> 中的命令输入到 shell 并检查输出和 <code>fs/testshell.key</code> 是否一致（注：Windows 下使用 Git 检出可能会有行尾问题）。</p>
-  </section>
-  <section type="challenge">
-    <p><strong>挑战！</strong><br>
-      为 Shell 添加更多的功能，包括但不限于（有一些可能需要也修改文件系统）：</p>
+    <p>运行 <code>make run-testshell</code> 来测试一下你的 shell。<code>testshell</code> 就是把 <code>fs/testshell.sh</code> 中的命令输入到 shell 并检查输出和 <code>fs/testshell.key</code> 是否一致（注：Windows 下使用 Git 检出可能会有行尾问题）。</p></section>
+  <section class="custom-block challenge" type="challenge"><strong>挑战！</strong><p>为 Shell 添加更多的功能，包括但不限于（有一些可能需要也修改文件系统）：</p>
     <ul>
       <li>backgrounding commands (ls &amp;)</li>
       <li>multiple commands per line (ls; echo hi)</li>
@@ -245,8 +195,7 @@ lsfd
       <li>directories, cd, and a PATH for command-lookup.</li>
       <li>file creation</li>
       <li>ctl-c to kill the running environment</li>
-    </ul>
-  </section>
+    </ul></section>
   <p>现在，你的代码应该能够通过全部的测试了。像以前一样，你可以用 <code>make grade</code> 来看看会得到多少分数，<s>并用 make handin 上交你的代码</s>。</p>
   <p><strong>到这里，这次实验就结束了。</strong> 像以前一样，不要忘了运行 <code>make grade</code> 并为每一个问题和其中一个挑战练习写一份答案。在提交之前，用 <code>git status</code> 和 <code>git diff</code> 来检查一下你的修改，不要忘了 <code>git add answers-lab5.txt</code>。当你准备好，通过 <code>git commit -am 'my solutions to lab 5'</code> 提交你的修改，<s>并用 make handin 来上交你的答案</s>。</p>
   <hr>
@@ -258,6 +207,9 @@ lsfd
   <p>编译脚本：</p>
   <pre class=" language-javascript"><code class="prism  language-javascript">Handlebars<span class="token punctuation">.</span><span class="token function">registerHelper</span><span class="token punctuation">(</span><span class="token string">'transform'</span><span class="token punctuation">,</span> <span class="token keyword">function</span> <span class="token punctuation">(</span>options<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token keyword">var</span> result <span class="token operator">=</span> options<span class="token punctuation">.</span><span class="token function">fn</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">var</span> regex <span class="token operator">=</span> <span class="token operator">/</span><span class="token punctuation">(</span><span class="token operator">&lt;</span>p<span class="token operator">&gt;</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token punctuation">:</span> <span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">[</span>\w<span class="token punctuation">]</span><span class="token operator">+</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token operator">^</span><span class="token operator">&lt;</span>\n<span class="token punctuation">]</span><span class="token operator">+</span><span class="token operator">?</span><span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token operator">&lt;</span>\<span class="token operator">/</span>p<span class="token operator">&gt;</span>\n<span class="token punctuation">)</span><span class="token punctuation">(</span><span class="token punctuation">.</span><span class="token operator">+</span><span class="token operator">?</span><span class="token punctuation">)</span><span class="token punctuation">(</span>\n<span class="token operator">&lt;</span>p<span class="token operator">&gt;</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token operator">&lt;</span>\<span class="token operator">/</span>p<span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="token operator">/</span>gms<span class="token punctuation">;</span>
+  <span class="token keyword">var</span> replace <span class="token operator">=</span> <span class="token string">'&lt;section class="custom-block $2" type="$2"&gt;&lt;strong&gt;$3&lt;/strong&gt;$5&lt;/section&gt;'</span><span class="token punctuation">;</span>
+  result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span>regex<span class="token punctuation">,</span> replace<span class="token punctuation">)</span>
   result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—section (.+?)—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;section type="$1"&gt;'</span><span class="token punctuation">)</span>
   result <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex">/&lt;p&gt;—end section—&lt;\/p&gt;/g</span><span class="token punctuation">,</span> <span class="token string">'&lt;/section&gt;'</span><span class="token punctuation">)</span>
   <span class="token keyword">return</span> result<span class="token punctuation">;</span>
@@ -265,5 +217,7 @@ lsfd
 </code></pre>
   <pre class=" language-javascript"><code class="prism  language-javascript"><span class="token punctuation">{</span><span class="token punctuation">{</span>#transform<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">{</span><span class="token punctuation">{</span><span class="token punctuation">{</span>files<span class="token number">.0</span><span class="token punctuation">.</span>content<span class="token punctuation">.</span>html<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">{</span><span class="token punctuation">{</span><span class="token operator">/</span>transform<span class="token punctuation">}</span><span class="token punctuation">}</span>
 </code></pre>
+
+
 </div>
 </template>
