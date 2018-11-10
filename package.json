@@ -59,7 +59,8 @@
   },
   "lint-staged": {
     "*.{js,vue}": [
-      "eslint --fix"
+      "eslint --fix",
+      "git add"
     ]
   },
   "repository": "github:vampire-rip/vampire"

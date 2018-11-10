@@ -25,8 +25,8 @@ export default {
     ...mapMutations({
 
     }),
-    navTo(url) {
-      window.location = url;
+    navTo (url) {
+      window.location = url
     }
   }
 }
