@@ -62,8 +62,8 @@ export default {
       <div id="navMenu" class="navbar-menu" :class="{'is-active': menuActive}">
         <div class="navbar-start">
           <nav-item to="/" icon="fa-home">主页</nav-item>
-          <nav-item to="/os" icon="fa-coins">操作系统</nav-item>
           <nav-item to="/about" icon="fa-question">关于</nav-item>
+          <nav-link to="https://os.vampire.rip" icon="fa-coins">操作系统</nav-link>
           <nav-link to="https://github.com/vampire-rip/vampire" icon="fab fa-github">GitHub</nav-link>
           <nav-link to="https://vampire.ink" icon="fa-book-dead">Docs</nav-link>
         </div>
