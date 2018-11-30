@@ -85,3 +85,7 @@ if ('serviceWorker' in navigator) {
       '<pre>' + error.stack + '</pre>'
   }
 }
+const c = (e) => {
+  return `color: #FFFFFF; text-shadow: 3px 3px 1px #${e}; font-size: 40px; font-family: 'Segoe Script', sans-serif; font-weight:700; padding: 0 0.3rem 0.2rem 0; margin-left: -0.3rem`
+}
+console.log('%cV%ca%cm%cpire ', c('e53f16'), c('f3bd03'), c('634eff'), c('05df33'))
