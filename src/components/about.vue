@@ -44,9 +44,9 @@ export default {
           <p>
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
-            <small>2018.10.6</small>
+            <small>2018.12.21</small>
             <br>
-            Flexbox 有好多坑，下次再也不用 bulma 了。
+            迁移到了 nginx 服务器，希望不会有什么问题。
           </p>
         </div>
         <nav class="level is-mobile">
