@@ -58,6 +58,10 @@ div.list {
   }
 }
 
+div.has-margin {
+  margin: 1.25rem;
+}
+
 div.has-padding-top {
   padding-top: 0.7rem;
 }
@@ -86,18 +90,18 @@ div.box a {
       <div class="subtitle">
         还在建设中喵
       </div>
-      <div style="display: inline-block; text-align: left">
-        <div>
-          如果你...
-        </div>
-        <div class="list has-text-justified has-padding-top">
-          <p>想要一个 .vampire.rip 的子域名</p>
-          <p>想要一个 @vampire.rip 的邮箱</p>
-          <p>想成为 Vampire R.I.P 的伙伴</p>
-        </div>
+      <div class="has-margin">
+        <p>他们说，魔法是人们还不懂的科学</p>
+        <p>那么 <u> 科学 </u> 是什么呢？</p>
+        <p>科学只是我们已经掌握的魔法</p>
       </div>
-      <div class="has-padding-top">
-        请联系 sunrisefox [AT] vampire.rip
+      <div class="has-margin">
+        <p>They say, magic is science that we don't understand yet.</p>
+        <p>But what is the <u>'science'</u> ? </p>
+        <p>Science is just spells that we've known how to cast.</p>
+      </div>
+      <div class="has-padding-top has-margin">
+        SunriseFox 欢迎您来 =w=
       </div>
     </div>
   </div>
