@@ -98,7 +98,7 @@ div.box a {
       <div class="has-margin">
         <p>They say, magic is science that we don't understand yet.</p>
         <p>But what is the <u>'science'</u> ? </p>
-        <p>Science is just spells that we've known how to cast.</p>
+        <p>Science was just spells before we'd mastered how to cast.</p>
       </div>
       <div class="has-padding-top has-margin">
         SunriseFox 欢迎您来 =w=
