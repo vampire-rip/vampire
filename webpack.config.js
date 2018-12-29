@@ -16,7 +16,9 @@ module.exports = {
       filename: 'index.html'
     }),
     new VueLoaderPlugin(),
-    new CleanWebpackPlugin([distPath])
+    new CleanWebpackPlugin([distPath], {
+      beforeEmit: true
+    })
   ],
   resolve: {
     alias: {

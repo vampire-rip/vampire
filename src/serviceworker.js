@@ -21,8 +21,16 @@ const handleCache = (path, cache) => {
     console.log('[sw] timeout! cancel the fetch.')
     controller.abort()
   }, 5000)
+  const request = new URL(path, self.registration.scope)
+  request.searchParams.append('_t', `${Date.now()}`)
   return Promise.resolve().then(() =>
-    fetch(path, { signal })
+    fetch(request.href, {
+      signal,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
   ).then(response => {
     if (!response.ok) return null
     let type

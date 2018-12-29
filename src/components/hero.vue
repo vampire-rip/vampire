@@ -91,9 +91,9 @@ div.box a {
         还在建设中喵
       </div>
       <div class="has-margin">
-        <p>他们说，魔法是人们还不懂的科学</p>
+        <p>他们说，魔法是人们还不懂的科学。</p>
         <p>那么 <u> 科学 </u> 是什么呢？</p>
-        <p>科学只是我们已经掌握的魔法</p>
+        <p>科学只是我们已经掌握的魔法 &gt;.&lt;</p>
       </div>
       <div class="has-margin">
         <p>They say, magic is science that we don't understand yet.</p>
