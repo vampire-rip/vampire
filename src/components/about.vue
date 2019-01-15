@@ -111,6 +111,10 @@ export default {
         <a href="https://github.com/SunriseFox">GitHub</a>
       </div>
       <div>
+        <i class="fab fa-telegram"></i>
+        <a href="https://t.me/joinchat/JPwhYQ76hJHSVUda4Q0Ciw">Telegram</a>
+      </div>
+      <div>
         <i class="fab fa-twitter"></i>
         <a href="https://twitter.com/realSunriseFox">Twitter</a>
       </div>
