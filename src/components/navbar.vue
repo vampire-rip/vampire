@@ -66,7 +66,7 @@ export default {
           <nav-link to="https://os.vampire.rip" icon="fa-coins">操作系统</nav-link>
           <nav-link to="https://vampire.ink" icon="fa-book-dead">魔法文档</nav-link>
           <nav-divider v-if="!menuActive"></nav-divider>
-          <nav-link to="https://www.paypal.me/SunriseFox" icon="fas fa-dollar-sign">捐助 Vampire</nav-link>
+          <nav-item to="/donate" icon="fa-dollar-sign">捐助 Vampire</nav-item>
         </div>
 
         <div class="navbar-end">

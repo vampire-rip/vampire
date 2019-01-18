@@ -1,10 +1,13 @@
 <script>
 import { mapState, mapMutations } from 'vuex'
+import ResumePDF from '@r/cv.pdf'
 
 export default {
   name: 'about',
   data () {
-    return {}
+    return {
+      ResumePDF
+    }
   },
   beforeMount () {
 
@@ -51,11 +54,16 @@ export default {
     }
   }
 }
+.is-appendix {
+  font-size: 0.6rem;
+  margin-top: -0.3rem;
+  color: #66C;
+}
 </style>
 
 <template>
 <div :id="$options.name" :class="$options.name">
-  <h2 class="fake-header">伪装成推特的动态</h2>
+  <h2 class="fake-header">我的动态</h2>
   <div class="box">
     <article class="media">
       <div class="media-left">
@@ -65,13 +73,12 @@ export default {
       </div>
       <div class="media-content">
         <div class="content">
-          <p>
+          <div>
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
-            <small>2018.12.21</small>
-            <br>
-            迁移到了 nginx 服务器，希望不会有什么问题。
-          </p>
+            <small>2019.1.17</small>
+            <br/>考完期末考试啦，有时间给 Vampire 找个新的归宿。 可是现在的也很好呀，好不舍。
+          </div>
         </div>
         <nav class="level is-mobile">
           <div class="level-left">
@@ -95,15 +102,11 @@ export default {
       </div>
     </article>
   </div>
-  <hr>
-  <div class="fake-header">友情链接</div>
+  <div class="fake-header">关于我</div>
   <div class="box has-text-centered">
-    <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
-      <img src="@r/gomoku.png" alt="Image">
-    </figure>
-    <div><strong><a href="//assorted.pw">五目小哥哥太可爱了</a></strong></div>
+    欢迎通过下面的链接自行发掘。 <br/>不过，要 <a :href="ResumePDF" download="resume-ran.pdf"><i class="fas fa-download"></i>下载一份我的简历</a> 吗？
   </div>
-  <h2 class="fake-header">找到我</h2>
+  <div class="fake-header">找到我</div>
   <div class="box has-text-centered">
     <div class="outer-flex">
       <div>
@@ -112,7 +115,7 @@ export default {
       </div>
       <div>
         <i class="fab fa-telegram"></i>
-        <a href="https://t.me/joinchat/JPwhYQ76hJHSVUda4Q0Ciw">Telegram</a>
+        <a href="https://t.me/realSunriseFox">Telegram</a>
       </div>
       <div>
         <i class="fab fa-twitter"></i>
@@ -126,6 +129,18 @@ export default {
         <i class="fas fa-at"></i>
         <a href="mailto:sunrisefox@vampire.rip">Email</a>
       </div>
+    </div>
+  </div>
+  <div class="fake-header">友情链接</div>
+  <div class="box">
+    <div class="has-text-centered">
+    <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
+      <img src="@r/gomoku.png" alt="Image">
+    </figure>
+    <div><strong><a href="//assorted.pw">五目小哥哥太可爱了</a></strong></div>
+    </div>
+    <div class="is-pulled-right is-inline-desktop is-appendix">
+      如果您有自己的网站或者广告，欢迎联系我━(*｀∀´*)ノ亻!
     </div>
   </div>
 </div>

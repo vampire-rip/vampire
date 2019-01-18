@@ -78,7 +78,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac|pdf)(\?.*)?$/,
         loader: 'file-loader',
         options: {
           name: 'media/[name].[hash:7].[ext]'

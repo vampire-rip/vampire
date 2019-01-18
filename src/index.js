@@ -37,6 +37,7 @@ const router = new VueRouter({
   routes: [
     { path: '/', component: routes.home },
     { path: '/about', component: routes.about },
+    { path: '/donate', component: routes.donate },
     { path: '/os/:lab', component: routes.os }
   ]
 })
