@@ -76,8 +76,8 @@ export default {
           <div>
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
-            <small>2019.1.17</small>
-            <br/>考完期末考试啦，有时间给 Vampire 找个新的归宿。 可是现在的也很好呀，好不舍。
+            <small>2019.4.8</small>
+            <br/>哪里招扫地的呀，我扫地贼六！在线等，急！
           </div>
         </div>
         <nav class="level is-mobile">
