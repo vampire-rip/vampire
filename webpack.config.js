@@ -109,7 +109,11 @@ module.exports = {
     ]
   },
   devServer: {
-    contentBase: '.'
+    contentBase: '.',
+    hot: true,
+    watchOptions: {
+      poll: true
+    }
   },
   output: {
     filename: 'entry.js',

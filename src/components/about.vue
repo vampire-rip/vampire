@@ -77,7 +77,7 @@ export default {
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
             <small>2019.4.8</small>
-            <br/>哪里招扫地的呀，我扫地贼六！在线等，急！
+            <br/>终于修好了 Webpack 的 Hot Reload 嘛？
           </div>
         </div>
         <nav class="level is-mobile">

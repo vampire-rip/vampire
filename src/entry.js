@@ -23,7 +23,7 @@ if ('serviceWorker' in navigator) {
     .catch(console.error)
     .then(() =>
       new Promise(resolve =>
-        setTimeout(resolve, 0)
+        requestAnimationFrame(resolve)
       )
     )
     .then(() =>
