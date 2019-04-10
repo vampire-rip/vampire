@@ -133,11 +133,19 @@ export default {
   </div>
   <div class="fake-header">友情链接</div>
   <div class="box">
-    <div class="has-text-centered">
-    <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
-      <img src="@r/gomoku.png" alt="Image">
-    </figure>
-    <div><strong><a href="//assorted.ink">五目小哥哥太可爱了</a></strong></div>
+    <div class="outer-flex">
+      <div class="has-text-centered">
+        <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
+          <img src="@r/gomoku.png" alt="Image">
+        </figure>
+        <div><strong><a href="//assorted.ink">五目小哥哥太可爱了</a></strong></div>
+      </div>
+      <div class="has-text-centered">
+        <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
+          <img src="@r/hughshine.png" alt="Image">
+        </figure>
+        <div><strong><a href="//hughshine.github.io">阳阳喜欢聪明的乌鸦</a></strong></div>
+      </div>
     </div>
     <div class="is-pulled-right is-inline-desktop is-appendix">
       如果您有自己的网站或者广告，欢迎联系我━(*｀∀´*)ノ亻!
