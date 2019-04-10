@@ -137,7 +137,7 @@ export default {
     <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
       <img src="@r/gomoku.png" alt="Image">
     </figure>
-    <div><strong><a href="//assorted.pw">五目小哥哥太可爱了</a></strong></div>
+    <div><strong><a href="//assorted.ink">五目小哥哥太可爱了</a></strong></div>
     </div>
     <div class="is-pulled-right is-inline-desktop is-appendix">
       如果您有自己的网站或者广告，欢迎联系我━(*｀∀´*)ノ亻!
