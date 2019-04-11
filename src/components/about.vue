@@ -146,12 +146,6 @@ export default {
         </figure>
         <div><strong><a href="//hughshine.github.io">阳阳喜欢聪明的乌鸦</a></strong></div>
       </div>
-      <div class="has-text-centered">
-        <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
-          <img src="@r/yoko2001.jpg" alt="Image">
-        </figure>
-      <div><strong><a href="//https://github.com/yoko2001/">Yoko2001</a></strong></div>
-      </div>
     </div>
     <div class="is-pulled-right is-inline-desktop is-appendix">
       如果您有自己的网站或者广告，欢迎联系我━(*｀∀´*)ノ亻!
