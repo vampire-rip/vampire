@@ -76,8 +76,8 @@ export default {
           <div>
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
-            <small>2019.4.8</small>
-            <br/>终于修好了 Webpack 的 Hot Reload 嘛？
+            <small>2019.4.28</small>
+            <br/>AAEncode 好像蛮好玩的0v0
           </div>
         </div>
         <nav class="level is-mobile">
@@ -150,7 +150,7 @@ export default {
         <figure class="image is-64x64" style="margin: auto; border-radius: 500px; overflow: hidden">
           <img src="@r/yoko2001.jpg" alt="Image">
         </figure>
-      <div><strong><a href="//https://github.com/yoko2001/">Yoko2001</a></strong></div>
+      <div><strong><a href="//github.com/yoko2001/">Yoko2001</a></strong></div>
       </div>
     </div>
     <div class="is-pulled-right is-inline-desktop is-appendix">
