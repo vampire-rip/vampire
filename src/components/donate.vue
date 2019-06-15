@@ -60,6 +60,15 @@ export default {
         Vampire 靠着各种捐助才一直存在到了现在。虽然目前 Vampire 项目还没什么用处，可是可是，哪怕是一个每天躺在床上的肥宅小哥哥也是要吃饭的啦！对于没有独立存在能力的 Vampire 来说，每一点点金币都很重要，所以，恳请您也继续支持 Vampire 项目。
       </p>
     </div>
+    <div class="fake-header">服务器</div>
+    <div class="text-content">
+      <p class="flex-center">
+        <a href="https://app.cloudcone.com/?ref=2628" class="flex-center" style="margin-left: 1.3rem;">
+          <object style="width: 200px; pointer-events: none" data="@r/cloudcone.svg"></object>
+        </a>
+        （推广链接，CN2 线路，小时计费，负责任的提供商）
+      </p>
+    </div>
     <div class="fake-header">支付宝</div>
     <div class="text-content">
       <p><a @click="showModal"><i class="fab fa-alipay"></i> 打开二维码 </a> 这里是某个很穷很穷的，每天都靠着乞讨度日的人的支付宝，扫一扫就可以请他吃顿像样的午餐。</p>
@@ -77,7 +86,7 @@ export default {
     <div class="fake-header">报答</div>
     <div class="text-content">
       <p>作为报答，捐助 Vampire 的小哥哥小姐姐可以加入<a href="https://t.me/joinchat/JPwhYQ76hJHSVUda4Q0Ciw"> 电报群组 </a>，分享服务器的一定份额喵。</p>
-      <p>服务器在美国洛杉矶的 QuadraNet 机房，到世界各地的路由和性能也都还不错啦，支持 IPv4/IPv6，不限流量，1Gbps 端口，所以大概可以用它来做很多事情，比如离线下载 BT，机器学习，小型游戏服务器，游戏加速，或者什么其他可以想到的用途。</p>
+      <p>服务器位于美国密西西比的魔法机房，到世界各地的路由和性能也都还不错啦，支持 IPv4/IPv6，不限流量，1Gbps 端口，所以大概可以用它来做很多事情，比如离线下载 BT，机器学习，小型游戏服务器，游戏加速，或者什么其他可以想到的用途。</p>
       <p>当然，如果如果，目前还访问不了电报的话，也可以首先给 Vampire 发个邮件来索要一份奇怪的上网秘籍~</p>
       <p>再次感谢~ 比心❤</p>
     </div>

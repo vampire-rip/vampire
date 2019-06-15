@@ -45,10 +45,15 @@ $button-focus-border-color: $purple;
   }
 }
 
+.main-container-wrapper {
+  flex: 1 1 auto;
+  overflow: hidden scroll;
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   overflow: auto;
   padding: 2rem 0 1rem;
 }
