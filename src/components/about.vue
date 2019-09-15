@@ -76,8 +76,8 @@ export default {
           <div>
             <strong>SunriseFox</strong>
             <small>@realSunriseFox</small>
-            <small>2019.6.15</small>
-            <br/>我永远讨厌南开大学。
+            <small>2019.9.15</small>
+            <br/>上海生活成本好高哦。
           </div>
         </div>
         <nav class="level is-mobile">
@@ -104,7 +104,7 @@ export default {
   </div>
   <div class="fake-header">关于我</div>
   <div class="box has-text-centered">
-    欢迎通过下面的链接自行发掘。 <br/>不过，要 <a :href="ResumePDF" download="resume-ran.pdf"><i class="fas fa-download"></i>下载一份我的简历</a> 吗？
+    欢迎通过下面的链接自行发掘。 <br/>不过，要 <a :href="ResumePDF" download="resume-general.pdf"><i class="fas fa-download"></i>下载一份我的简历</a> 吗？
   </div>
   <div class="fake-header">找到我</div>
   <div class="box has-text-centered">

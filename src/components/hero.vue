@@ -107,7 +107,7 @@ div.box a {
   </div>
   <div class="hero-foot has-text-centered">
     <div>滥用举报：abuse@vampire.rip</div>
-    <div>Vampire 2018</div>
+    <div>Vampire 2019</div>
   </div>
 </section>
 </template>
