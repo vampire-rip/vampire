@@ -62,10 +62,10 @@ module.exports = {
           presets: [
             [
               '@babel/preset-env', {
-                'targets': {
-                  'chrome': '58',
-                  'ie': '11',
-                  'safari': '10.1'
+                targets: {
+                  chrome: '58',
+                  ie: '11',
+                  safari: '10.1'
                 }
               }]
           ],

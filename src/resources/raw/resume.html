@@ -1,0 +1,494 @@
+<!DOCTYPE html><html><head>
+  <meta charset="UTF-8">
+  <title>Vampire Markdown</title>
+  <style>
+    @media screen and (min-width: 820px) {
+  .markdown-container {
+    max-width: 700px;
+    width: 700px;
+  }
+}
+@media screen and (min-width: 1088px) {
+  .markdown-container {
+    max-width: 760px;
+    width: 760px;
+  }
+}
+@media screen and (min-width: 1280px) {
+  .markdown-container {
+    max-width: 960px;
+    width: 960px;
+  }
+}
+.markdown-container {
+  line-height: 1.67 !important;
+  font-family: Lato, Helvetica Neue, Helvetica, sans-serif !important;
+  font-variant-ligatures: common-ligatures !important;
+  font-size: 18px !important;
+  color: rgba(0, 0, 0, 0.75) !important;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 1rem 0 1rem;
+  margin: auto;
+}
+.markdown-container:first-child {
+  margin-top: 0;
+}
+.markdown-container blockquote, .markdown-container dl, .markdown-container ol, .markdown-container p, .markdown-container ul {
+  margin: 1.2em 0 !important;
+}
+.markdown-container pre {
+  margin: 0.6em 0 !important;
+  padding: 0 !important;
+}
+.markdown-container ul {
+  padding-left: 40px;
+  padding-inline-start: 40px;
+}
+.markdown-container li ul {
+  margin-top: 0 !important;
+}
+.markdown-container li p {
+  margin: 0.2em 0 !important;
+}
+.markdown-container code {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+.markdown-container :not(pre) > code {
+  color: #ff3860;
+  font-weight: 400;
+}
+.markdown-container code, .markdown-container pre, .markdown-container samp {
+  font-family: Roboto Mono, Lucida Sans Typewriter, Lucida Console, monaco, Courrier, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", monospace !important;
+  font-size: 0.95em;
+  background: unset;
+}
+.markdown-container pre > code {
+  color: #757763;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: block;
+  padding: 0.5em;
+  -webkit-text-size-adjust: none;
+  overflow-x: auto;
+  white-space: pre;
+  border-radius: 3px;
+}
+.markdown-container .prism .token.function {
+  color: #dd4a68;
+}
+.markdown-container .prism .token.attr-name, .markdown-container .prism .token.builtin, .markdown-container .prism .token.char, .markdown-container .prism .token.inserted, .markdown-container .prism .token.selector, .markdown-container .prism .token.string, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.attr-name, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.builtin, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.char, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.inserted, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.selector, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.string {
+  color: #690;
+}
+.markdown-container .prism .token.cdata, .markdown-container .prism .token.comment, .markdown-container .prism .token.doctype, .markdown-container .prism .token.prolog, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.cdata, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.comment, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.doctype, .markdown-container .prism .token.pre.gfm .markdown-container .prism .token.prolog {
+  color: #708090;
+}
+.markdown-container h1, .markdown-container h2, .markdown-container h3, .markdown-container h4, .markdown-container h5, .markdown-container h6 {
+  margin: 1.2em 0 0.4em !important;
+  line-height: 1.33;
+}
+.markdown-container h1:after, .markdown-container h2:after {
+  content: "";
+  display: block;
+  position: relative;
+  top: 0.33em;
+  border-bottom: 1px dotted rgba(128, 128, 128, 0.33);
+}
+.markdown-container h1 {
+  font-size: 1.7em;
+}
+.markdown-container h2 {
+  font-size: 1.5em;
+}
+.markdown-container h3 {
+  font-size: 1.3em;
+}
+.markdown-container h4 {
+  font-size: 1.1em;
+}
+.markdown-container .table-wrapper {
+  max-width: 100%;
+  overflow: auto;
+}
+.markdown-container table {
+  background-color: transparent;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+.markdown-container td, .markdown-container th {
+  border-right: 1px solid #dcdcdc;
+  padding: 3px 6px;
+}
+.markdown-container td {
+  border-top: 1px solid #dcdcdc;
+}
+.markdown-container td:last-child, .markdown-container th:last-child {
+  border-right: 0;
+}
+.markdown-container section[type] {
+  border-radius: 4px;
+  font-size: 1rem;
+  padding: 0.4em 1.5em;
+  margin: 0.6rem 0;
+  border-style: solid;
+  border-width: 0 0 0 4px;
+}
+.markdown-container section[type] > p:nth-child(2) {
+  margin-top: 0.2rem !important;
+}
+.markdown-container section[type][type=exercise] {
+  border-color: #23d160;
+  color: #0e301a;
+}
+.markdown-container section[type][type=challenge] {
+  border-color: #ffdd57;
+  color: #3b3108;
+}
+.markdown-container section[type][type=question] {
+  border-color: #3273dc;
+  color: #22509a;
+}
+.markdown-container section[type][type=warning] {
+  border-color: #00d1b2;
+  color: #3b3108;
+}
+.markdown-container img {
+  max-width: 100%;
+  margin: auto;
+  display: block;
+}
+
+/*
+Orginal Style from ethanschoonover.com/solarized (c) Jeremy Hull <sourdrums@gmail.com>
+*/
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #fdf6e3;
+  color: #657b83;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #93a1a1;
+}
+
+/* Solarized Green */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: #859900;
+}
+
+/* Solarized Cyan */
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  color: #2aa198;
+}
+
+/* Solarized Blue */
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #268bd2;
+}
+
+/* Solarized Yellow */
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  color: #b58900;
+}
+
+/* Solarized Orange */
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  color: #cb4b16;
+}
+
+/* Solarized Red */
+.hljs-built_in,
+.hljs-deletion {
+  color: #dc322f;
+}
+
+.hljs-formula {
+  background: #eee8d5;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+html, body {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: #f5f5f5;
+  height: 100%;
+  max-height: 100%;
+}
+
+*, :after, :before {
+  box-sizing: inherit;
+}
+
+a:hover {
+  color: #363636;
+}
+
+a {
+  color: #fa7c91;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.left-bar-wrapper {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  flex: 0 1 auto;
+  padding-left: 20px;
+  max-width: 300px;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  left: 0;
+  transform: translateX(-100%);
+  overflow: visible;
+  transition: transform 0.5s ease;
+  display: flex;
+  background-color: #fefcfb;
+}
+.left-bar-wrapper.is-active {
+  transform: translateX(0);
+}
+.left-bar-wrapper.is-active .left-bar-control {
+  transform: translateX(50%) scaleX(0);
+  opacity: 0;
+}
+.left-bar-wrapper .left-bar {
+  overflow: auto;
+  padding: 40px 10px;
+}
+.left-bar-wrapper .left-bar .title {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.left-bar-wrapper .left-bar-control {
+  width: 4px;
+  background-color: #dc322f;
+  position: absolute;
+  right: 0;
+  transform: translateX(50%) scaleX(1);
+  top: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 15px 3px #dc322f;
+  border-radius: 100px;
+}
+
+ul {
+  padding: 0 0 0 15px;
+  list-style: disc outside none;
+  list-style-type: inherit;
+  line-height: 1.65;
+}
+  </style>
+</head>
+<body>
+<div class="markdown-container">
+<h3>SunriseFox —— 前端全栈方向</h3>
+<h4>基本信息</h4>
+<ul>
+<li>
+<p>本科 / 南开大学 / 信息安全专业 / 2020 年毕业</p>
+</li>
+<li>
+<p>github: <a href="https://github.com/SunriseFox">SunriseFox</a> @ <a href="https://github.com/vampire-rip">vampire-rip</a></p>
+</li>
+<li>
+<p>email: <code>sunrisefox@vampire.rip</code> (<a href="mailto:sunrisefox@vampire.rip">link</a>) / telegram: <code>@realSunriseFox</code> (<a href="https://t.me/realSunriseFox">link</a>)</p>
+</li>
+</ul>
+<h4>技术栈</h4>
+<ul>
+<li>
+<p>面向 Google 编程，面向文档编程，熟练掌握 copy and paste from Stack Overflow，擅长动手调查和解决问题。</p>
+</li>
+<li>
+<p>熟悉 NodeJS、HTML5、CSS3 (平时不画三角形)、IndexedDB，了解 W3C 标准，ESNext (声明变量不用 var)，了解通过 Profiles 进行性能调优。</p>
+</li>
+<li>
+<p>了解 Vue、React (with TypeScript and JSS) 等前端框架 (源码有需要时才看)，Material-UI、element-ui 等 UI 框架。</p>
+</li>
+<li>
+<p>熟练使用 Git，了解 Git Flow 和 Conventional Commits， 具备大型项目开发经验，代码很规范，合作不流泪。</p>
+</li>
+<li>
+<p>熟悉各项 Linux 指令的使用，熟悉服务器的一般配置和调试，了解 Linux 系统调用、C++ 内核编程。</p>
+</li>
+<li>
+<p>熟悉计算机方向英语，能快速阅读和理解文档。</p>
+</li>
+<li>
+<p>熟悉通过 ExpressJS、 fastify 等进行后端开发，了解 C++ 编程。</p>
+</li>
+<li>
+<p>充分了解 Web 及系统安全攻防理论实践，不写安全漏洞。</p>
+</li>
+</ul>
+<h4>工作经历</h4>
+<ul>
+<li>
+<p>2019.07 - 2020.02, working for Sujitech’s team <a href="https://github.com/DimensionDev">Dimension-Dev</a>, a member of tc39, devoting myself to the frontend team (React, TypeScript, browser and native extensions), decentralized database, crypto and privacy protection. Mainly contributed to <a href="https://github.com/DimensionDev/Maskbook">Maskbook</a>, an open-source browser plugin, for new features, performance improvements and bug fixes.</p>
+</li>
+<li>
+<p>2018 A 公司前端（全栈）工程师，使用 Vue、Postgres 与 NodeJS，完成微信小程序及移动端单页 H5 应用完成开发、适配到上线的完整流程。</p>
+</li>
+</ul>
+<h4>经验</h4>
+<ul>
+<li>
+<p>“麦芽TANG”、“海豚云医疗” 微信小程序及对应后台。</p>
+</li>
+<li>
+<p>2016 – 2019 任南开大学计算机专业在线评测系统服务器运维，负责该服务器前端、后端、数据库及内核的<a href="https://github.com/NankaiACM/">更新和维护</a>工作。</p>
+</li>
+<li>
+<p>2018 – 2019 开发基于容器、seccomp-bpf 和 ptrace 的全功能通用语言的 OJ 评测内核，目前应用于<a href="https://github.com/SunriseFox/vampire-judge-core">南开大学等学校的在线评测系统</a>。</p>
+</li>
+</ul>
+<h4>期望</h4>
+<ul>
+<li>
+<p>友善、温和、尊重</p>
+</li>
+<li>
+<p>技术进取、跟随时代、发展机会</p>
+</li>
+<li>
+<p>长期稳定、有趣好玩、薪水合理</p>
+</li>
+</ul>
+</div>
+<script>
+var clickCopyListener = function clickCopyListener(e) {
+  e.stopImmediatePropagation();
+  e = e.srcElement;
+  var text = e;
+  var range;
+  var selection;
+
+  if (document.body.createTextRange) {
+    range = document.body.createTextRange();
+    range.moveToElementText(text);
+    range.select();
+  } else if (window.getSelection) {
+    selection = window.getSelection();
+    range = document.createRange();
+    range.selectNodeContents(text);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  document.execCommand('copy');
+};
+
+var elems = document.querySelectorAll(':not(pre) > code');
+elems.forEach(function (e) {
+  return e.addEventListener('click', clickCopyListener);
+});
+var q = document.querySelectorAll.bind(document);
+var titles = q('h2,h3,h4');
+var exercises = q('section[type="exercise"]');
+var questions = q('section[type="question"]');
+var challenges = q('section[type="challenge"]');
+
+var hashTo = function hashTo(param) {
+  if (typeof param === 'string') param = document.querySelector(param);
+  console.log(param.offsetTop - 50);
+  window.scrollTo({
+    top: param.offsetTop - 50
+  });
+  history.replaceState({}, '', '#' + param.getAttribute('id'));
+};
+
+var i = 0;
+var arr = Array.prototype.slice.call(titles);
+var lastTag = 'H ';
+var stack = [];
+var result = [];
+arr.map(function (title) {
+  i++;
+  title.setAttribute('id', 'title-' + i);
+  var a = title.innerHTML.split('/');
+  var t = a.length === 1 ? a[0] : a[1];
+  var e = "<a onclick=\"hashTo('#title-" + i + "')\">" + t + "</a>";
+
+  if (title.tagName > lastTag) {
+    result.push("<ul><li>" + e);
+    stack.push(title.tagName);
+  } else if (title.tagName === lastTag) {
+    result.push("</li><li>" + e);
+  } else {
+    while (stack[stack.length - 1] > title.tagName) {
+      stack.pop();
+      result.push('</li></ul>');
+    }
+
+    result.push("</li><li>" + e);
+  }
+
+  lastTag = title.tagName;
+});
+
+while (stack.pop()) {
+  result.push('</li></ul>');
+}
+
+var getStr = function getStr(elems, key, name) {
+  var arr = Array.prototype.slice.call(elems);
+  var result = [];
+  result.push('<ul>');
+  arr.map(function (elem, i) {
+    i = i + 1;
+    elem.setAttribute('id', "" + key + i);
+    result.push("<li><a onclick=\"hashTo('#" + key + i + "')\">" + name + " " + i + "</a></li>");
+  });
+  result.push('</ul>');
+  return result.join('');
+};
+
+var stopPropagation = function stopPropagation(e) {
+  e.stopImmediatePropagation();
+};
+
+</script>
+
+
+</body></html>
